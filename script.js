@@ -1,19 +1,31 @@
-function generateQR() {
-  const bank = document.getElementById("bankCode").value.toLowerCase();
-  const account = document.getElementById("accountNumber").value;
-  const name = document.getElementById("accountName").value.toUpperCase();
-  const amount = document.getElementById("amount").value;
-  const note = encodeURIComponent(document.getElementById("note").value || "");
+// Cấu hình cố định
+const BANK_CODE = "acb  "; // vietcombank
+const ACCOUNT_NUMBER = "43146717"; // thay bằng STK của bạn
+const ACCOUNT_NAME = "DINH TAN HUY"; // IN HOA, KHÔNG DẤU
 
-  if (!bank || !account || !name) {
-    alert("Vui lòng nhập đủ thông tin tài khoản.");
+function generateRandomNote(length = 7) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+function generateQR() {
+  const amount = document.getElementById("amount").value;
+
+  if (!amount || amount <= 0) {
+    alert("Vui lòng nhập số tiền hợp lệ.");
     return;
   }
 
-  const imageUrl = `https://img.vietqr.io/image/${bank}-${account}-compact.png?amount=${amount}&addInfo=${note}&accountName=${name}`;
+  const note = generateRandomNote();
+  const imageUrl = `https://img.vietqr.io/image/${BANK_CODE}-${ACCOUNT_NUMBER}-compact.png?amount=${amount}&addInfo=${note}&accountName=${ACCOUNT_NAME}`;
 
   document.getElementById("qr-result").innerHTML = `
     <p>Mã QR VietQR:</p>
     <img src="${imageUrl}" alt="VietQR Code" />
+    <p><strong>Nội dung CK:</strong> ${note}</p>
   `;
 }
