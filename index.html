@@ -1,50 +1,27 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Đăng nhập / Đăng ký</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deposit</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h2>Đăng nhập hoặc Đăng ký</h2>
-  <form id="authForm">
-    <input type="text" id="username" placeholder="Tên đăng nhập" required><br>
-    <input type="password" id="password" placeholder="Mật khẩu" required><br>
-    <button type="submit">Đăng nhập / Đăng ký</button>
-  </form>
-  <p id="error"></p>
+  <div class="form-container">
+    <h2>Welcome, <span id="currentUser"></span></h2>
+    <input type="number" id="depositAmount" placeholder="Enter amount to deposit" />
+    <button onclick="deposit()">Submit</button>
 
-  <script>
-    const SHEETDB_URL = "https://sheetdb.io/api/v1/j9sqry5cgir1c";
-    
-    document.getElementById("authForm").addEventListener("submit", async function(e) {
-      e.preventDefault();
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
+    <div id="qrArea" style="display:none;">
+      <h3>Scan QR to Pay</h3>
+      <img src="your-qr-image.png" alt="QR Code" width="200" />
+      <p>After payment, the amount will be saved.</p>
+    </div>
 
-      // Kiểm tra người dùng có tồn tại không
-      const res = await fetch(`${SHEETDB_URL}/search?username=${username}`);
-      const data = await res.json();
+    <p id="message"></p>
+    <button onclick="logout()">Logout</button>
+  </div>
 
-      if (data.length > 0) {
-        // Nếu tồn tại, kiểm tra mật khẩu
-        if (data[0].password === password) {
-          localStorage.setItem("user", username);
-          window.location.href = "deposit.html";
-        } else {
-          document.getElementById("error").textContent = "Sai mật khẩu!";
-        }
-      } else {
-        // Nếu chưa có, thì tạo tài khoản
-        await fetch(SHEETDB_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ data: [{ username, password, total_deposit: 0 }] })
-        });
-        localStorage.setItem("user", username);
-        window.location.href = "deposit.html";
-      }
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
