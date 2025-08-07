@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shop</title>
+  <title>Shop Tool</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -41,6 +41,39 @@
       font-size: 16px;
     }
 
+    .product button {
+      margin-top: 10px;
+      background-color: #0070f3;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .product button:hover {
+      background-color: #005ac1;
+    }
+
+    .form-container {
+      display: none;
+      margin-top: 15px;
+    }
+
+    .form-container input {
+      padding: 8px;
+      margin-bottom: 10px;
+      width: 90%;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    h3 {
+      margin-top: 40px;
+      color: #333;
+    }
+
     .back-link {
       margin-top: 30px;
       display: inline-block;
@@ -63,6 +96,8 @@
     <ul>
       <li>1 kỳ thường: 600.000đ</li>
     </ul>
+    <button onclick="showForm('eos', 600000)">Mua ngay</button>
+    <div id="form-eos" class="form-container"></div>
   </div>
 
   <div class="product">
@@ -70,18 +105,44 @@
     <ul>
       <li>1 kỳ thường: 400.000đ</li>
     </ul>
+    <button onclick="showForm('seb', 400000)">Mua ngay</button>
+    <div id="form-seb" class="form-container"></div>
   </div>
 
   <div class="product">
-    <h2> TOOL EOS và SEB</h2>
+    <h2>TOOL EOS và SEB</h2>
     <ul>
-      <li> Giá 800k cho 1 kì </li>
+      <li>Giá 800.000đ cho 1 kỳ</li>
     </ul>
-  </div> 
-<h3> Tính năng tool EOS và SEB auto giải , chụp , khoanh .</h3>
-<h3> Chọn gói xong quay lại phần nạp tiền để thanh toán .</h3>
- <h3> Mua xong thì IB qua tele cho @hup3m2</h3>   
+    <button onclick="showForm('combo', 800000)">Mua ngay</button>
+    <div id="form-combo" class="form-container"></div>
+  </div>
+
+  <h3>🧠 Tính năng tool EOS và SEB: auto giải, chụp, khoanh.</h3>
+  <h3>✅ Chọn gói xong quay lại phần nạp tiền để thanh toán.</h3>
+  <h3>📩 Mua xong thì IB qua Telegram: <a href="https://t.me/hup3m2" target="_blank">@hup3m2</a></h3>
+
   <a href="deposit.html" class="back-link">← Quay lại trang nạp</a>
+
+  <script>
+    function showForm(id, amount) {
+      document.querySelectorAll('.form-container').forEach(el => el.innerHTML = '');
+
+      const container = document.getElementById('form-' + id);
+      container.style.display = 'block';
+      container.innerHTML = `
+        <input type="text" id="note-${id}" placeholder="Nhập ghi chú hoặc tài khoản nhận tool"><br>
+        <button onclick="proceedToPayment(${amount}, 'note-${id}')">Thanh toán ${amount.toLocaleString()}đ</button>
+      `;
+    }
+
+    function proceedToPayment(amount, noteId) {
+      const note = document.getElementById(noteId).value || 'Mua tool';
+      localStorage.setItem("paymentAmount", amount);
+      localStorage.setItem("paymentNote", note);
+      window.location.href = "deposit.html";
+    }
+  </script>
 
 </body>
 </html>
