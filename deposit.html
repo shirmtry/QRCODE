@@ -1,20 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nạp tiền</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      background: #f9f9f9;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    input {
+      padding: 10px;
+      width: 80%;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      background: #0070f3;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #005ac1;
+    }
+    #qr-result {
+      margin-top: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 5px;
+    }
+    .shop-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: #0070f3;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <h2>Tạo mã VietQR</h2>
-    <input type="number" id="amount" placeholder="Nhập số tiền muốn nạp" />
+    <input type="number" id="amount" placeholder="Nhập số tiền muốn nạp">
     <button onclick="generateQR()">Tạo mã QR</button>
     <div id="qr-result"></div>
-    <a href="shop.html" style="display: inline-block; margin-top: 20px; text-decoration: none; font-weight: bold; color: #0070f3;">
-    🛒 Shop
-  </a>
+    <a href="shop.html" class="shop-link">🛒 Shop</a>
   </div>
 
   <script src="script.js"></script>
