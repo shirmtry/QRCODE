@@ -1,56 +1,112 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>Nạp tiền</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <h2>Nạp tiền</h2>
-  <p>Chuyển khoản tới:</p>
-  <img src="qrcode.png" width="250" alt="Mã QR chuyển khoản"><br>
-  <p>Còn lại: <span id="countdown">90</span> giây</p>
-  <button id="confirmBtn">Tôi đã chuyển khoản</button>
-  <p id="success" style="color: green;"></p>
+const SHEETDB_URL = "https://sheetdb.io/api/v1/YOUR_SHEETDB_API"; // Thay bằng URL của bạn
 
-  <script>
-    const SHEETDB_URL = "https://sheetdb.io/api/v1/abc123xyz";
-    const username = localStorage.getItem("user");
-    if (!username) window.location.href = "login.html";
+// Đăng ký
+function register() {
+  const username = document.getElementById("registerUsername").value.trim();
+  const password = document.getElementById("registerPassword").value;
 
-    let countdown = 90;
-    const timer = setInterval(() => {
-      countdown--;
-      document.getElementById("countdown").textContent = countdown;
-      if (countdown <= 0) {
-        clearInterval(timer);
-        alert("Hết thời gian chuyển khoản!");
-        location.reload();
+  if (!username || !password) {
+    return showMessage("Please enter username and password");
+  }
+
+  // Kiểm tra username đã tồn tại chưa
+  fetch(`${SHEETDB_URL}/search?username=${username}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.length > 0) {
+        return showMessage("Username already exists");
       }
-    }, 1000);
 
-    document.getElementById("confirmBtn").addEventListener("click", async () => {
-      clearInterval(timer);
-      const napSoTien = 100000; // ví dụ: nạp 100k
-      const res = await fetch(`${SHEETDB_URL}/search?username=${username}`);
-      const userData = await res.json();
-      if (userData.length === 0) return alert("Không tìm thấy người dùng!");
+      // Gửi lên SheetDB
+      fetch(SHEETDB_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: [{
+            username: username,
+            password: password,
+            total_deposit: 0
+          }]
+        })
+      }).then(() => {
+        showMessage("Registered successfully. You can now login.");
+      });
+    });
+}
 
-      const currentTotal = parseInt(userData[0].total_deposit || "0");
-      const updatedTotal = currentTotal + napSoTien;
+// Đăng nhập
+function login() {
+  const username = document.getElementById("loginUsername").value.trim();
+  const password = document.getElementById("loginPassword").value;
 
-      // Gửi PATCH update
-      await fetch(`${SHEETDB_URL}/username/${username}`, {
+  fetch(`${SHEETDB_URL}/search?username=${username}&password=${password}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.length === 0) {
+        return showMessage("Incorrect username or password");
+      }
+      localStorage.setItem("user", username);
+      window.location.href = "deposit.html";
+    });
+}
+
+// Nạp tiền
+function deposit() {
+  const username = localStorage.getItem("user");
+  const amount = parseFloat(document.getElementById("depositAmount").value);
+
+  if (!username || !amount || amount <= 0) {
+    return showMessage("Enter a valid amount");
+  }
+
+  // Hiện mã QR
+  document.getElementById("qrArea").style.display = "block";
+
+  // Lấy thông tin user
+  fetch(`${SHEETDB_URL}/search?username=${username}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.length === 0) {
+        return showMessage("User not found");
+      }
+
+      const userRow = data[0];
+      const currentDeposit = parseFloat(userRow.total_deposit) || 0;
+      const newTotal = currentDeposit + amount;
+
+      // Cập nhật lên SheetDB
+      fetch(`${SHEETDB_URL}/username/${username}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: { total_deposit: updatedTotal } })
+        body: JSON.stringify({
+          data: {
+            total_deposit: newTotal
+          }
+        })
+      }).then(() => {
+        showMessage(`Deposit request submitted. Amount: ${amount}`);
       });
-
-      document.getElementById("success").textContent = "Nạp tiền thành công!";
-      setTimeout(() => {
-        window.location.href = "/playgame";  // chuyển tiếp sang game
-      }, 2000);
     });
-  </script>
-</body>
-</html>
+}
+
+// Logout
+function logout() {
+  localStorage.removeItem("user");
+  window.location.href = "index.html";
+}
+
+// Hiển thị tên user và kiểm tra login
+window.onload = function () {
+  if (window.location.pathname.includes("deposit.html")) {
+    const username = localStorage.getItem("user");
+    if (!username) {
+      window.location.href = "index.html";
+    } else {
+      document.getElementById("currentUser").textContent = username;
+    }
+  }
+}
+
+function showMessage(msg) {
+  document.getElementById("message").textContent = msg;
+}
