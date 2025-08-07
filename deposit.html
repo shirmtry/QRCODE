@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Nạp tiền</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Nạp tiền</h2>
+  <p>Chuyển khoản tới:</p>
+  <img src="qrcode.png" width="250" alt="Mã QR chuyển khoản"><br>
+  <p>Còn lại: <span id="countdown">90</span> giây</p>
+  <button id="confirmBtn">Tôi đã chuyển khoản</button>
+  <p id="success" style="color: green;"></p>
+
+  <script>
+    const SHEETDB_URL = "https://sheetdb.io/api/v1/abc123xyz";
+    const username = localStorage.getItem("user");
+    if (!username) window.location.href = "login.html";
+
+    let countdown = 90;
+    const timer = setInterval(() => {
+      countdown--;
+      document.getElementById("countdown").textContent = countdown;
+      if (countdown <= 0) {
+        clearInterval(timer);
+        alert("Hết thời gian chuyển khoản!");
+        location.reload();
+      }
+    }, 1000);
+
+    document.getElementById("confirmBtn").addEventListener("click", async () => {
+      clearInterval(timer);
+      const napSoTien = 100000; // ví dụ: nạp 100k
+      const res = await fetch(`${SHEETDB_URL}/search?username=${username}`);
+      const userData = await res.json();
+      if (userData.length === 0) return alert("Không tìm thấy người dùng!");
+
+      const currentTotal = parseInt(userData[0].total_deposit || "0");
+      const updatedTotal = currentTotal + napSoTien;
+
+      // Gửi PATCH update
+      await fetch(`${SHEETDB_URL}/username/${username}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: { total_deposit: updatedTotal } })
+      });
+
+      document.getElementById("success").textContent = "Nạp tiền thành công!";
+      setTimeout(() => {
+        window.location.href = "/playgame";  // chuyển tiếp sang game
+      }, 2000);
+    });
+  </script>
+</body>
+</html>
