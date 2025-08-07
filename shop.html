@@ -11,12 +11,10 @@
       text-align: center;
       padding: 40px;
     }
-
     h1 {
       margin-bottom: 30px;
       color: #333;
     }
-
     .product {
       background: #fff;
       border-radius: 12px;
@@ -25,22 +23,18 @@
       margin: 20px auto;
       max-width: 400px;
     }
-
     .product h2 {
       margin-bottom: 10px;
       color: #0070f3;
     }
-
     .product ul {
       list-style: none;
       padding: 0;
     }
-
     .product ul li {
       margin: 8px 0;
       font-size: 16px;
     }
-
     .product button {
       margin-top: 10px;
       background-color: #0070f3;
@@ -51,16 +45,13 @@
       cursor: pointer;
       font-weight: bold;
     }
-
     .product button:hover {
       background-color: #005ac1;
     }
-
     .form-container {
       display: none;
       margin-top: 15px;
     }
-
     .form-container input {
       padding: 8px;
       margin-bottom: 10px;
@@ -68,22 +59,16 @@
       border-radius: 5px;
       border: 1px solid #ccc;
     }
-
     h3 {
       margin-top: 40px;
       color: #333;
     }
-
     .back-link {
       margin-top: 30px;
       display: inline-block;
       text-decoration: none;
       color: #0070f3;
       font-weight: bold;
-    }
-
-    .back-link:hover {
-      text-decoration: underline;
     }
   </style>
 </head>
@@ -119,8 +104,7 @@
   </div>
 
   <h3>🧠 Tính năng tool EOS và SEB: auto giải, chụp, khoanh.</h3>
-  <h3>✅ Chọn gói xong quay lại phần nạp tiền để thanh toán.</h3>
-  <h3>📩 Mua xong thì IB qua Telegram: <a href="https://t.me/hup3m2" target="_blank">@hup3m2</a></h3>
+  <h3>✅ Chọn gói xong sẽ chuyển thẳng đến trang thanh toán</h3>
 
   <a href="deposit.html" class="back-link">← Quay lại trang nạp</a>
 
@@ -138,9 +122,7 @@
 
     function proceedToPayment(amount, noteId) {
       const note = document.getElementById(noteId).value || 'Mua tool';
-      localStorage.setItem("paymentAmount", amount);
-      localStorage.setItem("paymentNote", note);
-      window.location.href = "deposit.html";
+      window.location.href = `deposit.html?amount=${amount}&note=${encodeURIComponent(note)}`;
     }
   </script>
 
