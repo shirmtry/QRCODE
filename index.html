@@ -3,23 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Deposit</title>
+  <title>Login / Register</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="form-container">
-    <h2>Welcome, <span id="currentUser"></span></h2>
-    <input type="number" id="depositAmount" placeholder="Enter amount to deposit" />
-    <button onclick="deposit()">Submit</button>
+    <h2>Login</h2>
+    <input type="text" id="loginUsername" placeholder="Username" />
+    <input type="password" id="loginPassword" placeholder="Password" />
+    <button onclick="login()">Login</button>
 
-    <div id="qrArea" style="display:none;">
-      <h3>Scan QR to Pay</h3>
-      <img src="your-qr-image.png" alt="QR Code" width="200" />
-      <p>After payment, the amount will be saved.</p>
-    </div>
+    <h2>Register</h2>
+    <input type="text" id="registerUsername" placeholder="Username" />
+    <input type="password" id="registerPassword" placeholder="Password" />
+    <button onclick="register()">Register</button>
 
-    <p id="message"></p>
-    <button onclick="logout()">Logout</button>
+    <p id="status"></p>
   </div>
 
   <script src="script.js"></script>
