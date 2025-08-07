@@ -1,23 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Deposit</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nạp tiền</title>
 </head>
 <body>
-  <div class="form-container">
-    <h2>Welcome, <span id="currentUser"></span></h2>
-    <input type="number" id="amount" placeholder="Enter amount to deposit" />
-    <button onclick="generateQR()">Deposit</button>
+  <h2>Nạp tiền vào tài khoản</h2>
 
-    <div id="qrCodeContainer" style="margin-top: 20px;"></div>
+  <form id="depositForm">
+    <input type="number" id="amount" placeholder="Nhập số tiền (VNĐ)" required />
+    <button type="submit">Tạo mã QR</button>
+  </form>
 
-    <p id="depositStatus"></p>
+  <div id="qrCodeArea" style="margin-top: 20px; display: none;">
+    <h3>Mã QR:</h3>
+    <img id="qrImage" src="" alt="QR Code" />
+    <p id="countdown"></p>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/qrious"></script>
   <script src="script.js"></script>
 </body>
 </html>
