@@ -105,6 +105,7 @@
 
   <h3>🧠 Tính năng tool EOS và SEB: auto giải, chụp, khoanh.</h3>
   <h3>✅ Chọn gói xong sẽ chuyển thẳng đến trang thanh toán</h3>
+  <h3>Mua gói xong IB TELE @hup3m2 cài tool</h3>
 
   <a href="deposit.html" class="back-link">← Quay lại trang nạp</a>
 
@@ -115,7 +116,7 @@
       const container = document.getElementById('form-' + id);
       container.style.display = 'block';
       container.innerHTML = `
-        <input type="text" id="note-${id}" placeholder="Nhập ghi chú hoặc tài khoản nhận tool"><br>
+        <input type="text" id="note-${id}" placeholder="Nhập Tên Tài Khoản Ngân hàng"><br>
         <button onclick="proceedToPayment(${amount}, 'note-${id}')">Thanh toán ${amount.toLocaleString()}đ</button>
       `;
     }
