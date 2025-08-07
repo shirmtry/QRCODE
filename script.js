@@ -1,34 +1,83 @@
-// Thông tin cố định
-const BANK_CODE = "ACB";
-const ACCOUNT_NUMBER = "43146717";
-const ACCOUNT_NAME = "DINH TAN HUY"; // IN HOA, KHÔNG DẤU
+const SHEET_URL = 'https://sheetdb.io/api/v1/j9sqry5cgir1c'; // Thay YOUR_SHEETDB_ID
 
-function generateRandomNote(length = 7) {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+function register() {
+  const username = document.getElementById('registerUsername').value.trim();
+  const password = document.getElementById('registerPassword').value.trim();
+
+  if (!username || !password) {
+    return alert("Please enter both username and password to register.");
   }
-  return result;
+
+  fetch(`${SHEET_URL}/search?username=${username}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.length > 0) {
+        document.getElementById('status').innerText = 'Username already exists!';
+      } else {
+        fetch(SHEET_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: [{ username, password, amount: 0 }] })
+        })
+        .then(() => {
+          document.getElementById('status').innerText = 'Registration successful!';
+        });
+      }
+    });
+}
+
+function login() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+
+  fetch(`${SHEET_URL}/search?username=${username}&password=${password}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.length > 0) {
+        localStorage.setItem('user', username);
+        window.location.href = 'deposit.html';
+      } else {
+        document.getElementById('status').innerText = 'Invalid credentials!';
+      }
+    });
 }
 
 function generateQR() {
-  const amount = document.getElementById("amount").value;
-
+  const amount = document.getElementById('amount').value;
+  const username = localStorage.getItem('user');
   if (!amount || amount <= 0) {
-    alert("Vui lòng nhập số tiền hợp lệ.");
-    return;
+    return alert("Enter a valid amount.");
   }
 
-  const note = generateRandomNote();
-  const encodedName = encodeURIComponent(ACCOUNT_NAME);
-  const imageUrl = `https://img.vietqr.io/image/${BANK_CODE}-${ACCOUNT_NUMBER}-compact.png?amount=${amount}&addInfo=${note}&accountName=${encodedName}`;
+  // Ghi lại thông tin nạp (sheet chỉ lưu username + amount)
+  fetch(SHEET_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      data: [{ username, amount }]
+    })
+  });
 
-  document.getElementById("qr-result").innerHTML = `
-    <p><strong>Mã QR VietQR:</strong></p>
-    <img src="${imageUrl}" alt="VietQR Code" />
-    <p><strong>Nội dung CK:</strong> ${note}</p>
-    <p><strong>Người nhận:</strong> ${ACCOUNT_NAME}</p>
-    <p style="color: green; font-weight: bold;">✅ Đã tạo mã chuyển khoản thành công!</p>
-  `;
+  // Tạo mã QR
+  const qr = new QRious({
+    element: document.createElement('canvas'),
+    value: `BANK_TRANSFER|USERNAME:${username}|AMOUNT:${amount}`,
+    size: 200,
+  });
+
+  const container = document.getElementById('qrCodeContainer');
+  container.innerHTML = '';
+  container.appendChild(qr.element);
+  document.getElementById('depositStatus').innerText = 'Scan QR to complete payment.';
 }
+
+window.onload = function () {
+  if (document.getElementById('currentUser')) {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      window.location.href = 'index.html';
+    } else {
+      document.getElementById('currentUser').innerText = user;
+    }
+  }
+};
