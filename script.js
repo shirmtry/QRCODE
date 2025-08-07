@@ -1,5 +1,5 @@
 // Cấu hình cố định
-const BANK_CODE = "acb  "; // vietcombank
+const BANK_CODE = "ACB"; // vietcombank
 const ACCOUNT_NUMBER = "43146717"; // thay bằng STK của bạn
 const ACCOUNT_NAME = "DINH TAN HUY"; // IN HOA, KHÔNG DẤU
 
