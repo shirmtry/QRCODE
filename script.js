@@ -1,18 +1,19 @@
 function generateQR() {
+  const bank = document.getElementById("bankCode").value.toLowerCase();
+  const account = document.getElementById("accountNumber").value;
+  const name = document.getElementById("accountName").value.toUpperCase();
   const amount = document.getElementById("amount").value;
-  const qrContainer = document.getElementById("qrcode");
+  const note = encodeURIComponent(document.getElementById("note").value || "");
 
-  qrContainer.innerHTML = ""; // clear cũ
-
-  if (!amount || amount <= 0) {
-    alert("Vui lòng nhập số tiền hợp lệ!");
+  if (!bank || !account || !name) {
+    alert("Vui lòng nhập đủ thông tin tài khoản.");
     return;
   }
 
-  const content = `STK: 43146717\nNgân hàng: ACB\nSố tiền: ${amount} VND`;
+  const imageUrl = `https://img.vietqr.io/image/${bank}-${account}-compact.png?amount=${amount}&addInfo=${note}&accountName=${name}`;
 
-  QRCode.toCanvas(document.createElement("canvas"), content, function (err, canvas) {
-    if (err) console.error(err);
-    else qrContainer.appendChild(canvas);
-  });
+  document.getElementById("qr-result").innerHTML = `
+    <p>Mã QR VietQR:</p>
+    <img src="${imageUrl}" alt="VietQR Code" />
+  `;
 }
