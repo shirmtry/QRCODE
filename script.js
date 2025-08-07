@@ -1,4 +1,4 @@
-const SHEET_API = "https://sheetdb.io/api/v1/j9sqry5cgir1c";
+const SHEET_URL = "https://sheetdb.io/api/v1/j9sqry5cgir1c";
 const BANK_CODE = "ACB";
 const ACCOUNT_NUMBER = "43146717";
 const ACCOUNT_NAME = "DINH TAN HUY";
@@ -14,7 +14,7 @@ function registerUser() {
   const username = document.getElementById("register-username").value;
   const password = document.getElementById("register-password").value;
 
-  fetch(`${SHEET_API}/search?username=${username}`)
+  fetch(`${SHEET_URL}/search?username=${username}`)
     .then(res => res.json())
     .then(async users => {
       if (users.length > 0) return alert("Tên đăng nhập đã tồn tại!");
@@ -83,7 +83,7 @@ function generateQR() {
   `;
 
   // Ghi log nạp vào sheet (cộng dồn)
-  fetch(`${SHEET_API}/search?username=${username}`)
+  fetch(`${SHEET_URL}/search?username=${username}`)
     .then(res => res.json())
     .then(users => {
       if (users.length === 0) return;
@@ -92,7 +92,7 @@ function generateQR() {
       const updateData = {
         data: { total_nap: currentTotal + parseFloat(amount) }
       };
-      fetch(`${SHEET_API}/id/${id}`, {
+      fetch(`${SHEET_URL}/id/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updateData)
