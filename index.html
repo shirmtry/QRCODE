@@ -1,19 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QR Code Generator</title>
-  <link rel="stylesheet" href="style.css"/>
+  <title>Tạo mã VietQR</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>Tạo mã QR cho số tiền</h1>
-    <input type="number" id="amount" placeholder="Nhập số tiền (VND)" />
+    <h1>Tạo mã VietQR</h1>
+    <input type="text" id="bankCode" placeholder="Mã ngân hàng (vd: vietcombank = VCB)" />
+    <input type="text" id="accountNumber" placeholder="Số tài khoản" />
+    <input type="text" id="accountName" placeholder="Tên người nhận (in hoa không dấu)" />
+    <input type="number" id="amount" placeholder="Số tiền (VND)" />
+    <input type="text" id="note" placeholder="Nội dung chuyển khoản" />
+
     <button onclick="generateQR()">Tạo mã QR</button>
-    <div id="qrcode"></div>
+
+    <div id="qr-result"></div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
   <script src="script.js"></script>
 </body>
 </html>
