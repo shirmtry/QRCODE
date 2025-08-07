@@ -1,7 +1,7 @@
-// Cấu hình cố định
-const BANK_CODE = "ACB"; // vietcombank
-const ACCOUNT_NUMBER = "43146717"; // thay bằng STK của bạn
-const ACCOUNT_NAME = "DINH TAN HUY"; // IN HOA, KHÔNG DẤU
+// Thông tin cố định
+const BANK_CODE = "ACB";
+const ACCOUNT_NUMBER = "43146717"; // STK thật của bạn
+const ACCOUNT_NAME = "DINH TAN HUY";  // IN HOA, KHÔNG DẤU
 
 function generateRandomNote(length = 7) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -21,7 +21,8 @@ function generateQR() {
   }
 
   const note = generateRandomNote();
-  const imageUrl = `https://img.vietqr.io/image/${BANK_CODE}-${ACCOUNT_NUMBER}-compact.png?amount=${amount}&addInfo=${note}&accountName=${ACCOUNT_NAME}`;
+  const encodedName = encodeURIComponent(ACCOUNT_NAME);
+  const imageUrl = `https://img.vietqr.io/image/${BANK_CODE}-${ACCOUNT_NUMBER}-compact.png?amount=${amount}&addInfo=${note}&accountName=${encodedName}`;
 
   document.getElementById("qr-result").innerHTML = `
     <p>Mã QR VietQR:</p>
