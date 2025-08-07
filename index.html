@@ -1,25 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Đăng nhập / Đăng ký</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Login/Register</title>
 </head>
 <body>
-  <h2>Đăng nhập / Đăng ký</h2>
-  <form id="registerForm">
-    <h3>Đăng ký</h3>
-    <input type="text" id="regUsername" placeholder="Tên đăng nhập" required><br>
-    <input type="password" id="regPassword" placeholder="Mật khẩu" required><br>
-    <button type="submit">Đăng ký</button>
-  </form>
+  <h2>Login</h2>
+  <input id="login_username" placeholder="Username" />
+  <input id="login_password" placeholder="Password" type="password" />
+  <button onclick="login()">Login</button>
 
-  <form id="loginForm">
-    <h3>Đăng nhập</h3>
-    <input type="text" id="loginUsername" placeholder="Tên đăng nhập" required><br>
-    <input type="password" id="loginPassword" placeholder="Mật khẩu" required><br>
-    <button type="submit">Đăng nhập</button>
-  </form>
+  <h2>Register</h2>
+  <input id="register_username" placeholder="Username" />
+  <input id="register_password" placeholder="Password" type="password" />
+  <button onclick="register()">Register</button>
 
   <script src="script.js"></script>
 </body>
