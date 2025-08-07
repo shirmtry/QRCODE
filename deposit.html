@@ -1,22 +1,17 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nạp tiền</title>
+  <title>Nạp Tiền</title>
 </head>
 <body>
-  <h2>Nạp tiền vào tài khoản</h2>
+  <h2>Nạp Tiền vào tài khoản</h2>
+  <label for="amount">Nhập số tiền:</label>
+  <input type="number" id="amount" placeholder="VD: 100000"><br><br>
+  <button onclick="generateQR()">Tạo mã QR</button>
 
-  <form id="depositForm">
-    <input type="number" id="amount" placeholder="Nhập số tiền (VNĐ)" required />
-    <button type="submit">Tạo mã QR</button>
-  </form>
-
-  <div id="qrCodeArea" style="margin-top: 20px; display: none;">
-    <h3>Mã QR:</h3>
-    <img id="qrImage" src="" alt="QR Code" />
-    <p id="countdown"></p>
+  <div id="qrResult" style="margin-top:20px;">
+    <img id="qrImage" src="" alt="QR Code sẽ hiện tại đây" style="max-width:300px;">
   </div>
 
   <script src="script.js"></script>
