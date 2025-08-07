@@ -9,7 +9,7 @@ function generateQR() {
     return;
   }
 
-  const content = `STK: 123456789\nNgân hàng: Vietcombank\nSố tiền: ${amount} VND`;
+  const content = `STK: 43146717\nNgân hàng: ACB\nSố tiền: ${amount} VND`;
 
   QRCode.toCanvas(document.createElement("canvas"), content, function (err, canvas) {
     if (err) console.error(err);
