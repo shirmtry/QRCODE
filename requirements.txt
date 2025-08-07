@@ -1,6 +1,0 @@
-fastapi
-uvicorn
-vietqr
-qrcode
-pillow
-jinja2
