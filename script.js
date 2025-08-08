@@ -74,14 +74,14 @@ async function checkPaymentStatus(note, amount) {
   if (!username) return false;
 
   try {
-    const response = await fetch(`${SHEET_URL}/search?username=${username}&note=${note}`);
+    const response = await fetch(`${SHEET_URL}/search?username=${username}&note=${note}&status=pending`);
     const transactions = await response.json();
 
     const matchingTransaction = transactions.find(
       txn => txn.note === note && parseFloat(txn.amount) === parseFloat(amount)
     );
 
-    return !!matchingTransaction;
+    return matchingTransaction ? matchingTransaction.id : false; // trả về ID nếu tìm thấy
   } catch (error) {
     console.error("Lỗi khi kiểm tra giao dịch:", error);
     return false;
@@ -136,6 +136,9 @@ function generateQR() {
   const paymentNote = getOrCreatePaymentNote();
   const remainingSeconds = getRemainingTime();
 
+  // Ghi giao dịch pending vào Sheet
+  recordPendingTransaction(username, amount, paymentNote);
+
   const encodedName = encodeURIComponent(ACCOUNT_NAME);
   const imageUrl = `https://img.vietqr.io/image/${BANK_CODE}-${ACCOUNT_NUMBER}-compact.png?amount=${amount}&addInfo=${paymentNote}&accountName=${encodedName}`;
 
@@ -166,17 +169,16 @@ function generateQR() {
 
   // Kiểm tra thanh toán
   checkIntervalId = setInterval(async () => {
-    const isPaid = await checkPaymentStatus(paymentNote, amount);
-    if (isPaid) {
+    const transactionId = await checkPaymentStatus(paymentNote, amount);
+    if (transactionId) {
       const updated = await updateUserBalance(username, amount);
       if (updated) {
+        await updateTransactionStatus(transactionId, "completed");
         document.getElementById("payment-status").innerHTML =
           '✅ Thanh toán thành công! Tiền đã được cộng vào tài khoản.';
         clearInterval(checkIntervalId);
         clearInterval(countdownIntervalId);
         localStorage.removeItem("paymentNoteData");
-
-        await recordTransaction(username, amount, paymentNote);
         await updateBalanceDisplay();
       }
     }
@@ -198,26 +200,40 @@ function formatTime(seconds) {
   return `${m}:${s}`;
 }
 
-// ===================== RECORD TRANSACTION =====================
-async function recordTransaction(username, amount, note) {
+// ===================== RECORD TRANSACTION PENDING =====================
+async function recordPendingTransaction(username, amount, note) {
   try {
-    const transactionData = {
+    const pendingData = {
       data: {
-        username,
-        amount,
-        note,
-        status: "completed",
+        username: username,
+        amount: parseFloat(amount),
+        note: note,
+        status: "pending",
         date: new Date().toISOString()
       }
     };
-
     await fetch(SHEET_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(transactionData)
+      body: JSON.stringify(pendingData)
     });
   } catch (error) {
-    console.error("Lỗi khi ghi giao dịch:", error);
+    console.error("Lỗi khi ghi pending:", error);
+  }
+}
+
+// ===================== UPDATE TRANSACTION STATUS =====================
+async function updateTransactionStatus(rowId, newStatus) {
+  try {
+    await fetch(`${SHEET_URL}/id/${rowId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        data: { status: newStatus }
+      })
+    });
+  } catch (error) {
+    console.error("Lỗi khi update status:", error);
   }
 }
 
