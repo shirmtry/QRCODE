@@ -3,7 +3,7 @@ const SHEET_URL = "https://sheetdb.io/api/v1/j9sqry5cgir1c";
 const BANK_CODE = "ACB";
 const ACCOUNT_NUMBER = "43146717";
 const ACCOUNT_NAME = "DINH TAN HUY";
-const CHECK_INTERVAL = 5000; // check mỗi 5 giây
+const CHECK_INTERVAL = 60000; // 60 giây
 let checkIntervalId = null;
 let countdownIntervalId = null;
 
@@ -58,6 +58,7 @@ function getRemainingTime() {
 function handleAutoGenerateQR() {
   const urlParams = new URLSearchParams(window.location.search);
   const amount = urlParams.get('amount');
+
   if (amount) {
     const amountInput = document.getElementById('amount');
     if (amountInput) {
@@ -76,11 +77,13 @@ async function checkPaymentStatus(note, amount) {
     const response = await fetch(`${SHEET_URL}/search?username=${username}&note=${note}`);
     const transactions = await response.json();
 
-    const match = transactions.find(
-      txn => txn.note === note && parseFloat(txn.amount) === parseFloat(amount) && txn.status.toLowerCase() === "completed"
+    const completedTxn = transactions.find(
+      txn => txn.note === note &&
+             parseFloat(txn.amount) === parseFloat(amount) &&
+             txn.status.toLowerCase() === "completed"
     );
 
-    return match ? match.id : false;
+    return completedTxn ? completedTxn.id : false;
   } catch (error) {
     console.error("Lỗi khi kiểm tra giao dịch:", error);
     return false;
@@ -92,7 +95,6 @@ async function updateUserBalance(username, amount) {
   try {
     const userResponse = await fetch(`${SHEET_URL}/search?username=${username}`);
     const users = await userResponse.json();
-
     if (users.length === 0) return false;
 
     const user = users[0];
@@ -223,7 +225,6 @@ async function updateBalanceDisplay() {
   try {
     const response = await fetch(`${SHEET_URL}/search?username=${username}`);
     const users = await response.json();
-
     if (users.length > 0) {
       const balanceElement = document.getElementById("user-balance");
       if (balanceElement) {
