@@ -74,16 +74,19 @@ async function checkPaymentStatus(note, amount) {
   if (!username) return false;
 
   try {
-    const response = await fetch(`${SHEET_URL}/search?username=${username}&note=${note}`);
+    const response = await fetch(`${SHEET_URL}/search?note=${note}`);
     const transactions = await response.json();
 
+    if (!transactions || transactions.length === 0) return false;
+
+    // Find the most recent transaction with matching note and amount
     const completedTxn = transactions.find(
       txn => txn.note === note &&
              parseFloat(txn.amount) === parseFloat(amount) &&
              txn.status.toLowerCase() === "completed"
     );
 
-    return completedTxn ? completedTxn.id : false;
+    return completedTxn ? completedTxn : false;
   } catch (error) {
     console.error("Lỗi khi kiểm tra giao dịch:", error);
     return false;
@@ -91,17 +94,26 @@ async function checkPaymentStatus(note, amount) {
 }
 
 // ===================== UPDATE BALANCE =====================
-async function updateUserBalance(username, amount) {
+async function updateUserBalance(username, amount, transactionId) {
   try {
+    // First check if this transaction has already been processed
+    const txnResponse = await fetch(`${SHEET_URL}/id/${transactionId}`);
+    const transaction = await txnResponse.json();
+    
+    if (transaction.processed === "true") {
+      return { success: true, alreadyProcessed: true };
+    }
+
     const userResponse = await fetch(`${SHEET_URL}/search?username=${username}`);
     const users = await userResponse.json();
-    if (users.length === 0) return false;
+    if (users.length === 0) return { success: false };
 
     const user = users[0];
     const currentBalance = parseFloat(user.balance || 0);
     const newBalance = currentBalance + parseFloat(amount);
 
-    const updateResponse = await fetch(`${SHEET_URL}/id/${user.id}`, {
+    // Update user balance
+    const updateUser = await fetch(`${SHEET_URL}/id/${user.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -112,10 +124,23 @@ async function updateUserBalance(username, amount) {
       })
     });
 
-    return updateResponse.ok;
+    if (!updateUser.ok) return { success: false };
+
+    // Mark transaction as processed
+    const updateTxn = await fetch(`${SHEET_URL}/id/${transactionId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        data: {
+          processed: "true"
+        }
+      })
+    });
+
+    return { success: updateTxn.ok };
   } catch (error) {
     console.error("Lỗi khi cập nhật số dư:", error);
-    return false;
+    return { success: false };
   }
 }
 
@@ -166,16 +191,27 @@ function generateQR() {
   }, 1000);
 
   checkIntervalId = setInterval(async () => {
-    const transactionId = await checkPaymentStatus(paymentNote, amount);
-    if (transactionId) {
-      const updated = await updateUserBalance(username, amount);
-      if (updated) {
-        document.getElementById("payment-status").innerHTML =
-          '✅ Thanh toán thành công! Tiền đã được cộng vào tài khoản.';
+    const transaction = await checkPaymentStatus(paymentNote, amount);
+    if (transaction) {
+      const { success, alreadyProcessed } = await updateUserBalance(username, amount, transaction.id);
+      
+      if (success) {
         clearInterval(checkIntervalId);
         clearInterval(countdownIntervalId);
         localStorage.removeItem("paymentNoteData");
+        
+        if (alreadyProcessed) {
+          document.getElementById("payment-status").innerHTML =
+            'ℹ️ Giao dịch đã được xử lý trước đó.';
+        } else {
+          document.getElementById("payment-status").innerHTML =
+            '✅ Thanh toán thành công! Tiền đã được cộng vào tài khoản.';
+        }
+        
         await updateBalanceDisplay();
+      } else {
+        document.getElementById("payment-status").innerHTML =
+          '⚠️ Đã xảy ra lỗi khi cập nhật số dư. Vui lòng liên hệ admin.';
       }
     }
   }, CHECK_INTERVAL);
@@ -204,7 +240,8 @@ async function recordPendingTransaction(username, amount, note) {
         amount: parseFloat(amount),
         note: note,
         status: "pending",
-        date: new Date().toISOString()
+        date: new Date().toISOString(),
+        processed: "false"
       }
     };
     await fetch(SHEET_URL, {
