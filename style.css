@@ -1,51 +1,41 @@
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
-  background: url('https://phongvu.vn/cong-nghe/wp-content/uploads/2020/11/119234579_169457918065236_755533166268046471_n-1.jpg') no-repeat center center fixed;
-  background-size: cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background: url("https://phongvu.vn/cong-nghe/wp-content/uploads/2020/11/119234579_169457918065236_755533166268046471_n-1.jpg") no-repeat center center/cover;
   height: 100vh;
+  display: flex;
+  justify-content: flex-start; /* canh trái */
+  align-items: center;
 }
 
 .container {
-  position: relative;
-  width: 350px;
+  margin-left: 150px; /* dịch sang phải 150px */
 }
 
 .card {
-  background: rgba(20, 20, 35, 0.85);
-  padding: 25px 30px;
+  background: rgba(0, 0, 0, 0.8);
   border-radius: 15px;
+  padding: 30px;
+  width: 320px;
   text-align: center;
   color: white;
-  backdrop-filter: blur(8px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
   position: relative;
+  overflow: hidden;
 }
 
-/* Viền neon chạy quanh khung */
 .card::before {
   content: "";
   position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 17px;
-  padding: 2px;
-  background: linear-gradient(90deg, #ff00cc, #3333ff, #00ffff, #ff00cc);
-  background-size: 400% 400%;
-  animation: borderRun 6s linear infinite;
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
+  top: -2px; left: -2px;
+  right: -2px; bottom: -2px;
+  background: linear-gradient(270deg, #ff00ff, #00ffff, #ff00ff);
+  background-size: 600% 600%;
+  z-index: -1;
+  filter: blur(5px);
+  animation: borderAnimation 6s linear infinite;
 }
 
-@keyframes borderRun {
+@keyframes borderAnimation {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
@@ -53,31 +43,23 @@ body {
 
 input {
   width: 100%;
-  padding: 12px;
-  margin-top: 10px;
+  padding: 10px;
+  margin: 8px 0;
   border-radius: 8px;
   border: none;
-  background: rgba(255,255,255,0.1);
-  color: white;
-}
-
-input::placeholder {
-  color: rgba(255,255,255,0.6);
+  outline: none;
 }
 
 button {
-  margin-top: 15px;
-  padding: 12px;
-  border: none;
-  background: linear-gradient(135deg, #ff00cc, #3333ff);
+  background: linear-gradient(90deg, #6a11cb, #2575fc);
   color: white;
+  padding: 10px;
+  border: none;
   border-radius: 8px;
-  font-size: 15px;
   cursor: pointer;
-}
-
-button:hover {
-  transform: scale(1.05);
+  font-size: 14px;
+  width: 100%;
+  margin-top: 10px;
 }
 
 a {
@@ -85,12 +67,5 @@ a {
   margin-top: 15px;
   font-size: 13px;
   color: #00ffff;
-  cursor: pointer;
-}
-
-.hidden {
-  opacity: 0;
-  transform: scale(0.9);
-  position: absolute;
-  pointer-events: none;
+  text-decoration: none;
 }
