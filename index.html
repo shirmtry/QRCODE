@@ -7,26 +7,25 @@
 </head>
 <body>
   <div class="container">
-
     <!-- Form Đăng nhập -->
-    <div class="card" id="login-card">
+    <div class="card" id="login-form">
       <h2>Đăng nhập</h2>
       <input type="text" id="login-username" placeholder="Tên đăng nhập">
       <input type="password" id="login-password" placeholder="Mật khẩu">
       <button onclick="loginUser()">Đăng nhập</button>
-      <a onclick="showRegister()">Chưa có tài khoản? Đăng ký</a>
+      <a href="#" onclick="showRegister()">Chưa có tài khoản? Đăng ký</a>
     </div>
 
     <!-- Form Đăng ký -->
-    <div class="card hidden" id="register-card">
+    <div class="card" id="register-form" style="display:none;">
       <h2>Đăng ký</h2>
       <input type="text" id="register-username" placeholder="Tên đăng nhập">
       <input type="password" id="register-password" placeholder="Mật khẩu">
       <button onclick="registerUser()">Đăng ký</button>
-      <a onclick="showLogin()">Đã có tài khoản? Đăng nhập</a>
+      <a href="#" onclick="showLogin()">Đã có tài khoản? Đăng nhập</a>
     </div>
-
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
