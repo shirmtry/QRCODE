@@ -1,3 +1,4 @@
+// ===================== CONFIG =====================
 const SHEET_URL = "https://sheetdb.io/api/v1/j9sqry5cgir1c";
 const BANK_CODE = "ACB";
 const ACCOUNT_NUMBER = "43146717";
@@ -5,12 +6,23 @@ const ACCOUNT_NAME = "DINH TAN HUY";
 const CHECK_INTERVAL = 30000; // 30 giây kiểm tra một lần
 let checkIntervalId = null;
 
-// Hàm xử lý tự động tạo QR khi có tham số amount
+// ===================== FORM SWITCH =====================
+function showLogin() {
+  document.getElementById("login-form").style.display = "block";
+  document.getElementById("register-form").style.display = "none";
+}
+
+function showRegister() {
+  document.getElementById("login-form").style.display = "none";
+  document.getElementById("register-form").style.display = "block";
+}
+
+// ===================== QR AUTO GENERATE =====================
 function handleAutoGenerateQR() {
   const urlParams = new URLSearchParams(window.location.search);
   const amount = urlParams.get('amount');
   const note = urlParams.get('note');
-  
+
   if (amount) {
     const amountInput = document.getElementById('amount');
     if (amountInput) {
@@ -23,7 +35,7 @@ function handleAutoGenerateQR() {
   }
 }
 
-// Hàm tạo mã ngẫu nhiên
+// ===================== RANDOM NOTE =====================
 function generateRandomNote(length = 7) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let result = "";
@@ -33,21 +45,19 @@ function generateRandomNote(length = 7) {
   return result;
 }
 
-// Hàm kiểm tra giao dịch
+// ===================== CHECK PAYMENT =====================
 async function checkPaymentStatus(note, amount) {
   const username = localStorage.getItem("username");
   if (!username) return false;
 
   try {
-    // Kiểm tra trong cơ sở dữ liệu
     const response = await fetch(`${SHEET_URL}/search?username=${username}&note=${note}`);
     const transactions = await response.json();
-    
-    // Nếu tìm thấy giao dịch với note và số tiền khớp
+
     const matchingTransaction = transactions.find(
       txn => txn.note === note && parseFloat(txn.amount) === parseFloat(amount)
     );
-    
+
     return !!matchingTransaction;
   } catch (error) {
     console.error("Lỗi khi kiểm tra giao dịch:", error);
@@ -55,31 +65,29 @@ async function checkPaymentStatus(note, amount) {
   }
 }
 
-// Hàm cập nhật số dư cho user
+// ===================== UPDATE BALANCE =====================
 async function updateUserBalance(username, amount) {
   try {
-    // Lấy thông tin user hiện tại
     const userResponse = await fetch(`${SHEET_URL}/search?username=${username}`);
     const users = await userResponse.json();
-    
+
     if (users.length === 0) return false;
-    
+
     const user = users[0];
     const currentBalance = parseFloat(user.balance || 0);
     const newBalance = currentBalance + parseFloat(amount);
-    
-    // Cập nhật số dư
+
     const updateResponse = await fetch(`${SHEET_URL}/id/${user.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        data: { 
+        data: {
           balance: newBalance,
           last_payment: new Date().toISOString()
         }
       })
     });
-    
+
     return updateResponse.ok;
   } catch (error) {
     console.error("Lỗi khi cập nhật số dư:", error);
@@ -87,7 +95,7 @@ async function updateUserBalance(username, amount) {
   }
 }
 
-// Hàm tạo mã QR và bắt đầu kiểm tra giao dịch
+// ===================== GENERATE QR =====================
 function generateQR() {
   const amount = document.getElementById("amount").value;
   const username = localStorage.getItem("username");
@@ -98,7 +106,6 @@ function generateQR() {
     return;
   }
 
-  // Dừng bất kỳ interval kiểm tra nào đang chạy
   if (checkIntervalId) {
     clearInterval(checkIntervalId);
     checkIntervalId = null;
@@ -118,34 +125,29 @@ function generateQR() {
     <button id="stop-checking" style="background-color: #e74c3c; margin-top: 10px;">Dừng kiểm tra</button>
   `;
 
-  // Bắt đầu kiểm tra giao dịch
   checkIntervalId = setInterval(async () => {
     const isPaid = await checkPaymentStatus(defaultNote, amount);
     if (isPaid) {
       const updated = await updateUserBalance(username, amount);
       if (updated) {
-        document.getElementById("payment-status").innerHTML = 
+        document.getElementById("payment-status").innerHTML =
           '✅ Thanh toán thành công! Tiền đã được cộng vào tài khoản.';
         clearInterval(checkIntervalId);
-        
-        // Cập nhật giao dịch
+
         await recordTransaction(username, amount, defaultNote);
-        
-        // Hiển thị số dư mới
         await updateBalanceDisplay();
       }
     }
   }, CHECK_INTERVAL);
 
-  // Thêm sự kiện cho nút dừng kiểm tra
   document.getElementById("stop-checking").addEventListener("click", () => {
     clearInterval(checkIntervalId);
-    document.getElementById("payment-status").innerHTML = 
+    document.getElementById("payment-status").innerHTML =
       '❌ Đã dừng kiểm tra. Nếu đã chuyển tiền, vui lòng liên hệ admin.';
   });
 }
 
-// Hàm ghi lại giao dịch
+// ===================== RECORD TRANSACTION =====================
 async function recordTransaction(username, amount, note) {
   try {
     const transactionData = {
@@ -157,7 +159,7 @@ async function recordTransaction(username, amount, note) {
         date: new Date().toISOString()
       }
     };
-    
+
     await fetch(SHEET_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -168,15 +170,15 @@ async function recordTransaction(username, amount, note) {
   }
 }
 
-// Hàm cập nhật hiển thị số dư
+// ===================== UPDATE BALANCE DISPLAY =====================
 async function updateBalanceDisplay() {
   const username = localStorage.getItem("username");
   if (!username) return;
-  
+
   try {
     const response = await fetch(`${SHEET_URL}/search?username=${username}`);
     const users = await response.json();
-    
+
     if (users.length > 0) {
       const balanceElement = document.getElementById("user-balance");
       if (balanceElement) {
@@ -188,12 +190,12 @@ async function updateBalanceDisplay() {
   }
 }
 
-// Hàm định dạng tiền tệ
+// ===================== FORMAT MONEY =====================
 function formatMoney(amount) {
   return parseFloat(amount).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-// Hàm lấy IP
+// ===================== GET IP =====================
 function getIP() {
   return fetch("https://api.ipify.org?format=json")
     .then(res => res.json())
@@ -201,7 +203,7 @@ function getIP() {
     .catch(() => "unknown");
 }
 
-// Hàm đăng ký
+// ===================== REGISTER =====================
 function registerUser() {
   const username = document.getElementById("register-username").value;
   const password = document.getElementById("register-password").value;
@@ -226,11 +228,12 @@ function registerUser() {
         body: JSON.stringify(userData)
       }).then(() => {
         alert("Đăng ký thành công!");
+        showLogin();
       });
     });
 }
 
-// Hàm đăng nhập
+// ===================== LOGIN =====================
 function loginUser() {
   const username = document.getElementById("login-username").value;
   const password = document.getElementById("login-password").value;
@@ -245,8 +248,8 @@ function loginUser() {
     });
 }
 
-// Tự động chạy khi trang được tải
-document.addEventListener('DOMContentLoaded', function() {
+// ===================== ON PAGE LOAD =====================
+document.addEventListener('DOMContentLoaded', function () {
   if (window.location.pathname.includes('deposit.html')) {
     handleAutoGenerateQR();
     updateBalanceDisplay();
