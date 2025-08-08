@@ -3,7 +3,7 @@ const SHEET_URL = "https://sheetdb.io/api/v1/j9sqry5cgir1c";
 const BANK_CODE = "ACB";
 const ACCOUNT_NUMBER = "43146717";
 const ACCOUNT_NAME = "DINH TAN HUY";
-const CHECK_INTERVAL = 30000; // 30 giây
+const CHECK_INTERVAL = 60000; // 30 giây
 let checkIntervalId = null;
 let countdownIntervalId = null;
 
