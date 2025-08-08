@@ -2,63 +2,104 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Đăng nhập / Đăng ký</title>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Chặn các sự kiện xem code
-      document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        alert('Không được phép xem code!');
-      });
-      
-      document.addEventListener('keydown', function(e) {
-        // Chặn F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-        if (e.key === 'F12' || 
-            (e.ctrlKey && e.shiftKey && e.key === 'I') || 
-            (e.ctrlKey && e.shiftKey && e.key === 'J') || 
-            (e.ctrlKey && e.key === 'U')) {
-          e.preventDefault();
-          alert('Không được phép xem code!');
-        }
-      });
-      
-      // Chặn mở DevTools bằng cách mở rồi đóng
-      (function() {
-        var devtools = /./;
-        devtools.toString = function() {
-          this.opened = true;
-          return '';
-        };
-        setInterval(function() {
-          if (devtools.opened) {
-            devtools.opened = false;
-            alert('Không được phép xem code!');
-            window.location.reload();
-          }
-        }, 100);
-      })();
-    });
-  </script>
+  <title>Hệ thống nạp tiền VietQR</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      padding: 30px;
+      width: 300px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+      font-size: 14px;
+      transition: border 0.3s;
+    }
+
+    input:focus {
+      border-color: #2575fc;
+    }
+
+    button {
+      background: linear-gradient(90deg, #6a11cb, #2575fc);
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      width: 100%;
+      margin-top: 10px;
+      transition: opacity 0.3s;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    a {
+      display: block;
+      margin-top: 15px;
+      font-size: 13px;
+      color: #2575fc;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-  <h1>Hệ thống nạp tiền VietQR</h1>
+  <div class="container">
+    <!-- Form Đăng ký -->
+    <div class="card">
+      <h2>Đăng ký</h2>
+      <input type="text" id="register-username" placeholder="Tên đăng nhập">
+      <input type="password" id="register-password" placeholder="Mật khẩu">
+      <button onclick="registerUser()">Đăng ký</button>
+    </div>
 
-  <section id="register">
-    <h2>Đăng ký</h2>
-    <input type="text" id="register-username" placeholder="Tên đăng nhập">
-    <input type="password" id="register-password" placeholder="Mật khẩu">
-    <button onclick="registerUser()">Đăng ký</button>
-  </section>
-
-  <section id="login">
-    <h2>Đăng nhập</h2>
-    <input type="text" id="login-username" placeholder="Tên đăng nhập">
-    <input type="password" id="login-password" placeholder="Mật khẩu">
-    <button onclick="loginUser()">Đăng nhập</button>
-  </section>
-
-  <p><a href="deposit.html">Chuyển đến trang nạp tiền</a></p>
+    <!-- Form Đăng nhập -->
+    <div class="card">
+      <h2>Đăng nhập</h2>
+      <input type="text" id="login-username" placeholder="Tên đăng nhập">
+      <input type="password" id="login-password" placeholder="Mật khẩu">
+      <button onclick="loginUser()">Đăng nhập</button>
+      <a href="deposit.html">Chuyển đến trang nạp tiền</a>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
