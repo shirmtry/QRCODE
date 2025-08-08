@@ -1,43 +1,72 @@
+/* Nền toàn trang */
 body {
-  font-family: sans-serif;
-  background-image: url("https://png.pngtree.com/thumb_back/fw800/background/20240413/pngtree-mountain-s-and-lakes-beautiful-web-banner-design-for-header-image_15713989.jpg");
+  font-family: 'Segoe UI', sans-serif;
+  background-image: url("https://phongvu.vn/cong-nghe/wp-content/uploads/2020/11/119234579_169457918065236_755533166268046471_n-1.jpg");
   background-size: cover;
   background-position: center;
+  background-attachment: fixed;
+  margin: 0;
   padding: 40px;
+}
+
+/* Bố cục chứa 2 form */
+.wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+/* Khung chung cho đăng ký & đăng nhập */
+.card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 25px 30px;
+  border-radius: 15px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+  max-width: 350px;
+  flex: 1;
+  min-width: 280px;
   text-align: center;
+  backdrop-filter: blur(5px);
 }
 
-.container {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 20px;
-  max-width: 400px;
-  margin: auto;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+.card h2 {
+  margin-bottom: 15px;
+  font-weight: bold;
+  font-size: 22px;
 }
 
+/* Input */
 input {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   margin-top: 10px;
   box-sizing: border-box;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #ccc;
+  font-size: 14px;
 }
 
+/* Nút */
 button {
-  margin-top: 20px;
-  padding: 10px 20px;
+  margin-top: 15px;
+  padding: 12px;
   cursor: pointer;
   border: none;
-  background-color: #0070f3;
+  background: linear-gradient(135deg, #4A90E2, #0070f3);
   color: white;
-  border-radius: 6px;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.3s ease;
 }
 
-/* ✅ Thêm phần style QR gọn vào khung */
+button:hover {
+  background: linear-gradient(135deg, #3a78c2, #005ec0);
+}
+
+/* QR result */
 #qr-result {
-  margin-top: 20px;
+  margin-top: 15px;
   text-align: center;
 }
 
@@ -47,4 +76,12 @@ button {
   border-radius: 8px;
   box-shadow: 0 0 5px rgba(0,0,0,0.3);
   margin-top: 10px;
+}
+
+/* Responsive: stack trên mobile */
+@media (max-width: 768px) {
+  .wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
 }
