@@ -3,7 +3,7 @@ const SHEET_URL = "https://sheetdb.io/api/v1/j9sqry5cgir1c";
 const BANK_CODE = "ACB";
 const ACCOUNT_NUMBER = "43146717";
 const ACCOUNT_NAME = "DINH TAN HUY";
-const CHECK_INTERVAL = 60000; // 30 giây
+const CHECK_INTERVAL = 5000; // check mỗi 5 giây
 let checkIntervalId = null;
 let countdownIntervalId = null;
 
@@ -34,11 +34,11 @@ function getOrCreatePaymentNote() {
   const now = Date.now();
 
   if (stored && now < stored.expireAt) {
-    return stored.note; // Dùng lại nếu chưa hết hạn
+    return stored.note;
   }
 
   const newNote = generateRandomNote();
-  const expireAt = now + 5 * 60 * 1000; // 5 phút
+  const expireAt = now + 5 * 60 * 1000;
   localStorage.setItem("paymentNoteData", JSON.stringify({
     note: newNote,
     expireAt
@@ -58,7 +58,6 @@ function getRemainingTime() {
 function handleAutoGenerateQR() {
   const urlParams = new URLSearchParams(window.location.search);
   const amount = urlParams.get('amount');
-
   if (amount) {
     const amountInput = document.getElementById('amount');
     if (amountInput) {
@@ -74,14 +73,14 @@ async function checkPaymentStatus(note, amount) {
   if (!username) return false;
 
   try {
-    const response = await fetch(`${SHEET_URL}/search?username=${username}&note=${note}&status=pending`);
+    const response = await fetch(`${SHEET_URL}/search?username=${username}&note=${note}`);
     const transactions = await response.json();
 
-    const matchingTransaction = transactions.find(
-      txn => txn.note === note && parseFloat(txn.amount) === parseFloat(amount)
+    const match = transactions.find(
+      txn => txn.note === note && parseFloat(txn.amount) === parseFloat(amount) && txn.status.toLowerCase() === "completed"
     );
 
-    return matchingTransaction ? matchingTransaction.id : false; // trả về ID nếu tìm thấy
+    return match ? match.id : false;
   } catch (error) {
     console.error("Lỗi khi kiểm tra giao dịch:", error);
     return false;
@@ -129,14 +128,12 @@ function generateQR() {
     return;
   }
 
-  // Dừng interval cũ
   if (checkIntervalId) clearInterval(checkIntervalId);
   if (countdownIntervalId) clearInterval(countdownIntervalId);
 
   const paymentNote = getOrCreatePaymentNote();
   const remainingSeconds = getRemainingTime();
 
-  // Ghi giao dịch pending vào Sheet
   recordPendingTransaction(username, amount, paymentNote);
 
   const encodedName = encodeURIComponent(ACCOUNT_NAME);
@@ -153,7 +150,6 @@ function generateQR() {
     <button id="stop-checking" style="background-color: #e74c3c; margin-top: 10px;">Dừng kiểm tra</button>
   `;
 
-  // Đếm ngược
   let timeLeft = remainingSeconds;
   countdownIntervalId = setInterval(() => {
     timeLeft--;
@@ -167,13 +163,11 @@ function generateQR() {
     }
   }, 1000);
 
-  // Kiểm tra thanh toán
   checkIntervalId = setInterval(async () => {
     const transactionId = await checkPaymentStatus(paymentNote, amount);
     if (transactionId) {
       const updated = await updateUserBalance(username, amount);
       if (updated) {
-        await updateTransactionStatus(transactionId, "completed");
         document.getElementById("payment-status").innerHTML =
           '✅ Thanh toán thành công! Tiền đã được cộng vào tài khoản.';
         clearInterval(checkIntervalId);
@@ -184,7 +178,6 @@ function generateQR() {
     }
   }, CHECK_INTERVAL);
 
-  // Nút dừng
   document.getElementById("stop-checking").addEventListener("click", () => {
     clearInterval(checkIntervalId);
     clearInterval(countdownIntervalId);
@@ -219,21 +212,6 @@ async function recordPendingTransaction(username, amount, note) {
     });
   } catch (error) {
     console.error("Lỗi khi ghi pending:", error);
-  }
-}
-
-// ===================== UPDATE TRANSACTION STATUS =====================
-async function updateTransactionStatus(rowId, newStatus) {
-  try {
-    await fetch(`${SHEET_URL}/id/${rowId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        data: { status: newStatus }
-      })
-    });
-  } catch (error) {
-    console.error("Lỗi khi update status:", error);
   }
 }
 
