@@ -5,6 +5,7 @@ const ACCOUNT_NUMBER = "43146717";
 const ACCOUNT_NAME = "DINH TAN HUY";
 const CHECK_INTERVAL = 30000; // 30 giây
 let checkIntervalId = null;
+let countdownIntervalId = null;
 
 // ===================== FORM SWITCH =====================
 function showLogin() {
@@ -119,10 +120,9 @@ function generateQR() {
     return;
   }
 
-  if (checkIntervalId) {
-    clearInterval(checkIntervalId);
-    checkIntervalId = null;
-  }
+  // Dừng các interval cũ
+  if (checkIntervalId) clearInterval(checkIntervalId);
+  if (countdownIntervalId) clearInterval(countdownIntervalId);
 
   const paymentNote = getOrCreatePaymentNote();
 
@@ -135,10 +135,27 @@ function generateQR() {
     <p><strong>Nội dung CK:</strong> ${paymentNote}</p>
     <p><strong>Người nhận:</strong> ${ACCOUNT_NAME}</p>
     <p><strong>Số tiền:</strong> ${formatMoney(amount)} VND</p>
+    <p id="countdown-timer" style="font-weight: bold; color: blue;">⏳ Thời gian còn lại: 05:00</p>
     <p id="payment-status" style="color: orange; font-weight: bold;">⏳ Đang chờ thanh toán...</p>
     <button id="stop-checking" style="background-color: #e74c3c; margin-top: 10px;">Dừng kiểm tra</button>
   `;
 
+  // Đếm ngược 5 phút
+  let timeLeft = 300;
+  countdownIntervalId = setInterval(() => {
+    timeLeft--;
+    const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+    const seconds = String(timeLeft % 60).padStart(2, '0');
+    document.getElementById("countdown-timer").textContent =
+      `⏳ Thời gian còn lại: ${minutes}:${seconds}`;
+    if (timeLeft <= 0) {
+      clearInterval(countdownIntervalId);
+      clearInterval(checkIntervalId);
+      document.getElementById("payment-status").innerHTML = "❌ Mã đã hết hạn! Tạo mã mới để tiếp tục.";
+    }
+  }, 1000);
+
+  // Bắt đầu kiểm tra thanh toán
   checkIntervalId = setInterval(async () => {
     const isPaid = await checkPaymentStatus(paymentNote, amount);
     if (isPaid) {
@@ -147,6 +164,7 @@ function generateQR() {
         document.getElementById("payment-status").innerHTML =
           '✅ Thanh toán thành công! Tiền đã được cộng vào tài khoản.';
         clearInterval(checkIntervalId);
+        clearInterval(countdownIntervalId);
 
         await recordTransaction(username, amount, paymentNote);
         await updateBalanceDisplay();
@@ -154,8 +172,10 @@ function generateQR() {
     }
   }, CHECK_INTERVAL);
 
+  // Nút dừng kiểm tra
   document.getElementById("stop-checking").addEventListener("click", () => {
     clearInterval(checkIntervalId);
+    clearInterval(countdownIntervalId);
     document.getElementById("payment-status").innerHTML =
       '❌ Đã dừng kiểm tra. Nếu đã chuyển tiền, vui lòng liên hệ admin.';
   });
