@@ -22,27 +22,28 @@
   <div class="product">
     <h2>TOOL EOS</h2>
     <p>1 kỳ thường: 600.000đ</p>
-    <button onclick="buyNow(600000, 'TOOL_EOS')">Mua ngay</button>
+    <button onclick="buyNow(600000)">Mua ngay</button>
   </div>
 
   <div class="product">
     <h2>TOOL SEB</h2>
     <p>1 kỳ thường: 400.000đ</p>
-    <button onclick="buyNow(400000, 'TOOL_SEB')">Mua ngay</button>
+    <button onclick="buyNow(400000)">Mua ngay</button>
   </div>
 
   <div class="product">
     <h2>TOOL EOS + SEB</h2>
     <p>Combo: 800.000đ</p>
-    <button onclick="buyNow(800000, 'COMBO')">Mua ngay</button>
+    <button onclick="buyNow(800000)">Mua ngay</button>
   </div>
 
   <a href="deposit.html" class="back-link">← Quay lại trang nạp</a>
 
   <script src="script.js"></script>
   <script>
-    function buyNow(amount, note) {
-      window.location.href = `deposit.html?amount=${amount}&note=${encodeURIComponent(note)}`;
+    function buyNow(amount) {
+      // chỉ truyền số tiền, không truyền note để script.js random
+      window.location.href = `deposit.html?amount=${amount}`;
     }
     document.addEventListener('DOMContentLoaded', updateBalanceDisplay);
   </script>
