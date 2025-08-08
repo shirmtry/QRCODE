@@ -33,16 +33,25 @@ function getOrCreatePaymentNote() {
   const stored = JSON.parse(localStorage.getItem("paymentNoteData"));
   const now = Date.now();
 
-  if (stored && now - stored.createdAt < 5 * 60 * 1000) {
-    return stored.note; // Dùng lại nếu chưa quá 5 phút
+  if (stored && now < stored.expireAt) {
+    return stored.note; // Dùng lại nếu chưa hết hạn
   }
 
   const newNote = generateRandomNote();
+  const expireAt = now + 5 * 60 * 1000; // 5 phút
   localStorage.setItem("paymentNoteData", JSON.stringify({
     note: newNote,
-    createdAt: now
+    expireAt
   }));
   return newNote;
+}
+
+// ===================== LẤY THỜI GIAN CÒN LẠI =====================
+function getRemainingTime() {
+  const stored = JSON.parse(localStorage.getItem("paymentNoteData"));
+  if (!stored) return 0;
+  const now = Date.now();
+  return Math.max(0, Math.floor((stored.expireAt - now) / 1000));
 }
 
 // ===================== QR AUTO GENERATE =====================
@@ -120,11 +129,12 @@ function generateQR() {
     return;
   }
 
-  // Dừng các interval cũ
+  // Dừng interval cũ
   if (checkIntervalId) clearInterval(checkIntervalId);
   if (countdownIntervalId) clearInterval(countdownIntervalId);
 
   const paymentNote = getOrCreatePaymentNote();
+  const remainingSeconds = getRemainingTime();
 
   const encodedName = encodeURIComponent(ACCOUNT_NAME);
   const imageUrl = `https://img.vietqr.io/image/${BANK_CODE}-${ACCOUNT_NUMBER}-compact.png?amount=${amount}&addInfo=${paymentNote}&accountName=${encodedName}`;
@@ -135,27 +145,26 @@ function generateQR() {
     <p><strong>Nội dung CK:</strong> ${paymentNote}</p>
     <p><strong>Người nhận:</strong> ${ACCOUNT_NAME}</p>
     <p><strong>Số tiền:</strong> ${formatMoney(amount)} VND</p>
-    <p id="countdown-timer" style="font-weight: bold; color: blue;">⏳ Thời gian còn lại: 05:00</p>
+    <p id="countdown-timer" style="font-weight: bold; color: blue;">⏳ Thời gian còn lại: ${formatTime(remainingSeconds)}</p>
     <p id="payment-status" style="color: orange; font-weight: bold;">⏳ Đang chờ thanh toán...</p>
     <button id="stop-checking" style="background-color: #e74c3c; margin-top: 10px;">Dừng kiểm tra</button>
   `;
 
-  // Đếm ngược 5 phút
-  let timeLeft = 300;
+  // Đếm ngược
+  let timeLeft = remainingSeconds;
   countdownIntervalId = setInterval(() => {
     timeLeft--;
-    const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-    const seconds = String(timeLeft % 60).padStart(2, '0');
     document.getElementById("countdown-timer").textContent =
-      `⏳ Thời gian còn lại: ${minutes}:${seconds}`;
+      `⏳ Thời gian còn lại: ${formatTime(timeLeft)}`;
     if (timeLeft <= 0) {
       clearInterval(countdownIntervalId);
       clearInterval(checkIntervalId);
+      localStorage.removeItem("paymentNoteData");
       document.getElementById("payment-status").innerHTML = "❌ Mã đã hết hạn! Tạo mã mới để tiếp tục.";
     }
   }, 1000);
 
-  // Bắt đầu kiểm tra thanh toán
+  // Kiểm tra thanh toán
   checkIntervalId = setInterval(async () => {
     const isPaid = await checkPaymentStatus(paymentNote, amount);
     if (isPaid) {
@@ -165,6 +174,7 @@ function generateQR() {
           '✅ Thanh toán thành công! Tiền đã được cộng vào tài khoản.';
         clearInterval(checkIntervalId);
         clearInterval(countdownIntervalId);
+        localStorage.removeItem("paymentNoteData");
 
         await recordTransaction(username, amount, paymentNote);
         await updateBalanceDisplay();
@@ -172,13 +182,20 @@ function generateQR() {
     }
   }, CHECK_INTERVAL);
 
-  // Nút dừng kiểm tra
+  // Nút dừng
   document.getElementById("stop-checking").addEventListener("click", () => {
     clearInterval(checkIntervalId);
     clearInterval(countdownIntervalId);
     document.getElementById("payment-status").innerHTML =
       '❌ Đã dừng kiểm tra. Nếu đã chuyển tiền, vui lòng liên hệ admin.';
   });
+}
+
+// ===================== FORMAT TIME =====================
+function formatTime(seconds) {
+  const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const s = String(seconds % 60).padStart(2, '0');
+  return `${m}:${s}`;
 }
 
 // ===================== RECORD TRANSACTION =====================
