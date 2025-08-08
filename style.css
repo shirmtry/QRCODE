@@ -1,19 +1,34 @@
-.card {
-  position: relative;
-  background: rgba(20, 20, 35, 0.85); /* nền tím đậm mờ */
-  padding: 25px 30px;
-  border-radius: 15px;
-  max-width: 350px;
-  flex: 1;
-  min-width: 280px;
-  text-align: center;
-  backdrop-filter: blur(8px);
-  color: white;
-  overflow: hidden;
-  z-index: 1;
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: url('https://phongvu.vn/cong-nghe/wp-content/uploads/2020/11/119234579_169457918065236_755533166268046471_n-1.jpg') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-/* Viền neon chạy quanh form */
+.container {
+  position: relative;
+  width: 350px;
+}
+
+.card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 25px 30px;
+  background: rgba(20, 20, 35, 0.85);
+  border-radius: 15px;
+  color: white;
+  text-align: center;
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
 .card::before {
   content: "";
   position: absolute;
@@ -21,27 +36,19 @@
   left: -2px;
   right: -2px;
   bottom: -2px;
-  background: linear-gradient(
-    270deg,
-    #ff00cc,
-    #3333ff,
-    #00ffff,
-    #ff00cc
-  );
+  background: linear-gradient(270deg, #ff00cc, #3333ff, #00ffff, #ff00cc);
   background-size: 800% 800%;
   border-radius: 17px;
   z-index: -1;
   animation: borderRun 6s linear infinite;
 }
 
-/* Animation chạy màu */
 @keyframes borderRun {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
-/* Input */
 input {
   width: 100%;
   padding: 12px;
@@ -56,11 +63,6 @@ input::placeholder {
   color: rgba(255,255,255,0.6);
 }
 
-input:focus {
-  outline: 2px solid #00ffff;
-}
-
-/* Nút */
 button {
   margin-top: 15px;
   padding: 12px;
@@ -69,17 +71,23 @@ button {
   color: white;
   border-radius: 8px;
   font-size: 15px;
-  transition: transform 0.2s;
+  cursor: pointer;
 }
 
 button:hover {
   transform: scale(1.05);
 }
 
-/* Link */
 a {
   display: block;
   margin-top: 15px;
   font-size: 13px;
   color: #00ffff;
+  cursor: pointer;
+}
+
+.hidden {
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
 }
