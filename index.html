@@ -6,24 +6,26 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <div class="wrapper">
-    <!-- Form Đăng ký -->
-    <div class="card">
-      <h2>Đăng ký</h2>
-      <input type="text" id="register-username" placeholder="Tên đăng nhập">
-      <input type="password" id="register-password" placeholder="Mật khẩu">
-      <button onclick="registerUser()">Đăng ký</button>
-    </div>
+  <div class="container">
 
     <!-- Form Đăng nhập -->
-    <div class="card">
+    <div class="card" id="login-card">
       <h2>Đăng nhập</h2>
       <input type="text" id="login-username" placeholder="Tên đăng nhập">
       <input type="password" id="login-password" placeholder="Mật khẩu">
       <button onclick="loginUser()">Đăng nhập</button>
-      <a href="deposit.html">Chuyển đến trang nạp tiền</a>
+      <a href="#" onclick="showRegister()">Chưa có tài khoản? Đăng ký</a>
     </div>
+
+    <!-- Form Đăng ký -->
+    <div class="card hidden" id="register-card">
+      <h2>Đăng ký</h2>
+      <input type="text" id="register-username" placeholder="Tên đăng nhập">
+      <input type="password" id="register-password" placeholder="Mật khẩu">
+      <button onclick="registerUser()">Đăng ký</button>
+      <a href="#" onclick="showLogin()">Đã có tài khoản? Đăng nhập</a>
+    </div>
+
   </div>
 
   <script src="script.js"></script>
