@@ -3,7 +3,7 @@ const SHEET_URL = "https://sheetdb.io/api/v1/j9sqry5cgir1c";
 const BANK_CODE = "ACB";
 const ACCOUNT_NUMBER = "43146717";
 const ACCOUNT_NAME = "DINH TAN HUY";
-const CHECK_INTERVAL = 30000; // 30 giây kiểm tra một lần
+const CHECK_INTERVAL = 30000; // 30 giây
 let checkIntervalId = null;
 
 // ===================== FORM SWITCH =====================
@@ -17,24 +17,6 @@ function showRegister() {
   document.getElementById("register-form").style.display = "block";
 }
 
-// ===================== QR AUTO GENERATE =====================
-function handleAutoGenerateQR() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const amount = urlParams.get('amount');
-  const note = urlParams.get('note');
-
-  if (amount) {
-    const amountInput = document.getElementById('amount');
-    if (amountInput) {
-      amountInput.value = amount;
-      if (note) {
-        localStorage.setItem("paymentNote", decodeURIComponent(note));
-      }
-      generateQR();
-    }
-  }
-}
-
 // ===================== RANDOM NOTE =====================
 function generateRandomNote(length = 7) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -43,6 +25,25 @@ function generateRandomNote(length = 7) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return result;
+}
+
+// ===================== QR AUTO GENERATE =====================
+function handleAutoGenerateQR() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const amount = urlParams.get('amount');
+
+  if (amount) {
+    const amountInput = document.getElementById('amount');
+    if (amountInput) {
+      amountInput.value = amount;
+
+      // Luôn tạo note random khi mở deposit.html
+      const randomNote = generateRandomNote();
+      localStorage.setItem("paymentNote", randomNote);
+
+      generateQR();
+    }
+  }
 }
 
 // ===================== CHECK PAYMENT =====================
@@ -112,6 +113,8 @@ function generateQR() {
   }
 
   const defaultNote = localStorage.getItem("paymentNote") || generateRandomNote();
+  localStorage.setItem("paymentNote", defaultNote);
+
   const encodedName = encodeURIComponent(ACCOUNT_NAME);
   const imageUrl = `https://img.vietqr.io/image/${BANK_CODE}-${ACCOUNT_NUMBER}-compact.png?amount=${amount}&addInfo=${defaultNote}&accountName=${encodedName}`;
 
