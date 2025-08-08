@@ -79,14 +79,28 @@ async function checkPaymentStatus(note, amount) {
 
     if (!transactions || transactions.length === 0) return false;
 
-    // Find the most recent transaction with matching note and amount
-    const completedTxn = transactions.find(
+    // Tìm giao dịch phù hợp với note và số tiền
+    const matchedTxn = transactions.find(
       txn => txn.note === note &&
-             parseFloat(txn.amount) === parseFloat(amount) &&
-             txn.status.toLowerCase() === "completed"
+             parseFloat(txn.amount) === parseFloat(amount)
     );
 
-    return completedTxn ? completedTxn : false;
+    if (!matchedTxn) return false;
+
+    // Nếu trạng thái là "C" (đã được admin xác nhận)
+    if (matchedTxn.status.toUpperCase() === "C") {
+      return {
+        ...matchedTxn,
+        adminConfirmed: true
+      };
+    }
+
+    // Hoặc nếu trạng thái là "completed"
+    if (matchedTxn.status.toLowerCase() === "completed") {
+      return matchedTxn;
+    }
+
+    return false;
   } catch (error) {
     console.error("Lỗi khi kiểm tra giao dịch:", error);
     return false;
@@ -94,9 +108,9 @@ async function checkPaymentStatus(note, amount) {
 }
 
 // ===================== UPDATE BALANCE =====================
-async function updateUserBalance(username, amount, transactionId) {
+async function updateUserBalance(username, amount, transactionId, adminConfirmed = false) {
   try {
-    // First check if this transaction has already been processed
+    // Kiểm tra xem giao dịch đã được xử lý chưa
     const txnResponse = await fetch(`${SHEET_URL}/id/${transactionId}`);
     const transaction = await txnResponse.json();
     
@@ -104,6 +118,7 @@ async function updateUserBalance(username, amount, transactionId) {
       return { success: true, alreadyProcessed: true };
     }
 
+    // Lấy thông tin user
     const userResponse = await fetch(`${SHEET_URL}/search?username=${username}`);
     const users = await userResponse.json();
     if (users.length === 0) return { success: false };
@@ -112,7 +127,7 @@ async function updateUserBalance(username, amount, transactionId) {
     const currentBalance = parseFloat(user.balance || 0);
     const newBalance = currentBalance + parseFloat(amount);
 
-    // Update user balance
+    // Cập nhật số dư user
     const updateUser = await fetch(`${SHEET_URL}/id/${user.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -126,13 +141,15 @@ async function updateUserBalance(username, amount, transactionId) {
 
     if (!updateUser.ok) return { success: false };
 
-    // Mark transaction as processed
+    // Đánh dấu giao dịch đã xử lý
     const updateTxn = await fetch(`${SHEET_URL}/id/${transactionId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         data: {
-          processed: "true"
+          processed: "true",
+          // Nếu là admin xác nhận thì cập nhật status thành "completed"
+          status: adminConfirmed ? "completed" : transaction.status
         }
       })
     });
@@ -193,7 +210,12 @@ function generateQR() {
   checkIntervalId = setInterval(async () => {
     const transaction = await checkPaymentStatus(paymentNote, amount);
     if (transaction) {
-      const { success, alreadyProcessed } = await updateUserBalance(username, amount, transaction.id);
+      const { success, alreadyProcessed } = await updateUserBalance(
+        username, 
+        amount, 
+        transaction.id,
+        transaction.adminConfirmed
+      );
       
       if (success) {
         clearInterval(checkIntervalId);
@@ -204,8 +226,11 @@ function generateQR() {
           document.getElementById("payment-status").innerHTML =
             'ℹ️ Giao dịch đã được xử lý trước đó.';
         } else {
-          document.getElementById("payment-status").innerHTML =
-            '✅ Thanh toán thành công! Tiền đã được cộng vào tài khoản.';
+          let message = '✅ Thanh toán thành công! Tiền đã được cộng vào tài khoản.';
+          if (transaction.adminConfirmed) {
+            message = '✅ Admin đã xác nhận thanh toán! Tiền đã được cộng vào tài khoản.';
+          }
+          document.getElementById("payment-status").innerHTML = message;
         }
         
         await updateBalanceDisplay();
