@@ -3,6 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <title>Đăng nhập / Đăng ký</title>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Chặn các sự kiện xem code
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        alert('Không được phép xem code!');
+      });
+      
+      document.addEventListener('keydown', function(e) {
+        // Chặn F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+            (e.ctrlKey && e.shiftKey && e.key === 'J') || 
+            (e.ctrlKey && e.key === 'U')) {
+          e.preventDefault();
+          alert('Không được phép xem code!');
+        }
+      });
+      
+      // Chặn mở DevTools bằng cách mở rồi đóng
+      (function() {
+        var devtools = /./;
+        devtools.toString = function() {
+          this.opened = true;
+          return '';
+        };
+        setInterval(function() {
+          if (devtools.opened) {
+            devtools.opened = false;
+            alert('Không được phép xem code!');
+            window.location.reload();
+          }
+        }, 100);
+      })();
+    });
+  </script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
