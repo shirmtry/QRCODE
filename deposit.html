@@ -1,71 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nạp tiền</title>
+  <title>Nạp tiền tự động</title>
   <link rel="stylesheet" href="style.css">
-  <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Chặn các sự kiện xem code
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                alert('Không được phép xem code!');
-            });
-            
-            document.addEventListener('keydown', function(e) {
-                // Chặn F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-                if (e.key === 'F12' || 
-                    (e.ctrlKey && e.shiftKey && e.key === 'I') || 
-                    (e.ctrlKey && e.shiftKey && e.key === 'J') || 
-                    (e.ctrlKey && e.key === 'U')) {
-                    e.preventDefault();
-                    alert('Không được phép xem code!');
-                }
-            });
-            
-            // Chặn mở DevTools bằng cách mở rồi đóng
-            (function() {
-                var devtools = /./;
-                devtools.toString = function() {
-                    this.opened = true;
-                    return '';
-                };
-                setInterval(function() {
-                    if (devtools.opened) {
-                        devtools.opened = false;
-                        alert('Không được phép xem code!');
-                        window.location.reload();
-                    }
-                }, 100);
-            })();
-            
-            // Chỉ cho phép nhập chữ cái và số
-            document.addEventListener('keypress', function(e) {
-                var charCode = e.charCode;
-                // Chỉ cho phép: a-z, A-Z, 0-9
-                if (!((charCode >= 48 && charCode <= 57) || // 0-9
-                      (charCode >= 65 && charCode <= 90) || // A-Z
-                      (charCode >= 97 && charCode <= 122))) { // a-z
-                    e.preventDefault();
-                    alert('Chỉ được phép nhập chữ cái và số!');
-                }
-            });
-        });
-    </script>
+  <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       max-width: 600px;
       margin: 0 auto;
       padding: 20px;
-      text-align: center;
+      background-color: #f5f5f5;
     }
     .container {
-      background: #f9f9f9;
+      background: white;
       border-radius: 10px;
       padding: 20px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .user-info {
+      text-align: right;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    #username {
+      font-weight: bold;
+    }
+    #user-balance {
+      color: #2ecc71;
+      font-weight: bold;
     }
     input {
       padding: 10px;
@@ -73,43 +39,150 @@
       margin: 10px 0;
       border: 1px solid #ddd;
       border-radius: 5px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
     button {
-      background: #0070f3;
+      background: #3498db;
       color: white;
       border: none;
       padding: 10px 20px;
       border-radius: 5px;
       cursor: pointer;
       font-weight: bold;
+      margin: 5px;
     }
     button:hover {
-      background: #005ac1;
+      background: #2980b9;
+    }
+    #stop-checking {
+      background: #e74c3c;
+    }
+    #stop-checking:hover {
+      background: #c0392b;
     }
     #qr-result {
       margin-top: 20px;
       padding: 15px;
-      background: white;
+      background: #f9f9f9;
       border-radius: 5px;
+      text-align: center;
+    }
+    #qrcode {
+      margin: 0 auto;
+      width: fit-content;
     }
     .shop-link {
       display: inline-block;
       margin-top: 20px;
-      color: #0070f3;
+      color: #3498db;
       text-decoration: none;
       font-weight: bold;
     }
+    .transaction-info {
+      margin-top: 10px;
+      text-align: left;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .hidden {
+      display: none;
+    }
   </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Chặn các sự kiện xem code
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        alert('Không được phép xem code!');
+      });
+      
+      document.addEventListener('keydown', function(e) {
+        // Chặn F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+            (e.ctrlKey && e.shiftKey && e.key === 'J') || 
+            (e.ctrlKey && e.key === 'U')) {
+          e.preventDefault();
+          alert('Không được phép xem code!');
+        }
+      });
+      
+      // Chặn mở DevTools bằng cách mở rồi đóng
+      (function() {
+        var devtools = /./;
+        devtools.toString = function() {
+          this.opened = true;
+          return '';
+        };
+        setInterval(function() {
+          if (devtools.opened) {
+            devtools.opened = false;
+            alert('Không được phép xem code!');
+            window.location.reload();
+          }
+        }, 100);
+      })();
+    });
+  </script>
 </head>
 <body>
   <div class="container">
-    <h2>Tạo mã VietQR</h2>
-    <input type="number" id="amount" placeholder="Nhập số tiền muốn nạp">
+    <div class="user-info">
+      <span id="username">Xin chào, User!</span>
+      <div id="user-balance">Số dư: 0 VND</div>
+    </div>
+
+    <h2>Nạp tiền tự động qua VietQR</h2>
+    <input type="number" id="amount" placeholder="Nhập số tiền muốn nạp" min="1000">
+    <small style="display: block; color: #777; margin-bottom: 15px;">Tối thiểu 1,000 VND</small>
+    
     <button onclick="generateQR()">Tạo mã QR</button>
-    <div id="qr-result"></div>
-    <a href="shop.html" class="shop-link">🛒 Shop</a>
+    
+    <div id="qr-result" class="hidden">
+      <div id="qrcode"></div>
+      <div class="transaction-info">
+        <p><strong>Ngân hàng:</strong> <span id="bank-name">ACB</span></p>
+        <p><strong>Số tài khoản:</strong> <span id="account-number">43146717</span></p>
+        <p><strong>Tên tài khoản:</strong> <span id="account-name">DINH TAN HUY</span></p>
+        <p><strong>Số tiền:</strong> <span id="payment-amount">0</span> VND</p>
+        <p><strong>Nội dung CK:</strong> <span id="payment-note"></span></p>
+        <p id="payment-status" style="color: orange; font-weight: bold;">⏳ Đang chờ thanh toán...</p>
+        <button id="stop-checking">Dừng kiểm tra</button>
+      </div>
+    </div>
+    
+    <a href="shop.html" class="shop-link">🛒 Vào cửa hàng</a>
   </div>
 
   <script src="script.js"></script>
+  <script>
+    // Cập nhật thông tin tài khoản từ script.js
+    document.addEventListener('DOMContentLoaded', function() {
+      // Hiển thị username nếu đã đăng nhập
+      const username = localStorage.getItem("username");
+      if (username) {
+        document.getElementById("username").textContent = `Xin chào, ${username}`;
+      }
+      
+      // Xử lý tham số URL nếu có
+      const urlParams = new URLSearchParams(window.location.search);
+      const amount = urlParams.get('amount');
+      const note = urlParams.get('note');
+      
+      if (amount) {
+        document.getElementById('amount').value = amount;
+        if (note) {
+          localStorage.setItem("paymentNote", decodeURIComponent(note));
+        }
+        generateQR();
+      }
+      
+      // Cập nhật số dư ban đầu
+      updateBalanceDisplay();
+    });
+  </script>
 </body>
 </html>
