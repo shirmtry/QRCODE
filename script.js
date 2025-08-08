@@ -27,6 +27,23 @@ function generateRandomNote(length = 7) {
   return result;
 }
 
+// ===================== LẤY HOẶC TẠO MÃ CÓ HẠN 5 PHÚT =====================
+function getOrCreatePaymentNote() {
+  const stored = JSON.parse(localStorage.getItem("paymentNoteData"));
+  const now = Date.now();
+
+  if (stored && now - stored.createdAt < 5 * 60 * 1000) {
+    return stored.note; // Dùng lại nếu chưa quá 5 phút
+  }
+
+  const newNote = generateRandomNote();
+  localStorage.setItem("paymentNoteData", JSON.stringify({
+    note: newNote,
+    createdAt: now
+  }));
+  return newNote;
+}
+
 // ===================== QR AUTO GENERATE =====================
 function handleAutoGenerateQR() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -36,11 +53,6 @@ function handleAutoGenerateQR() {
     const amountInput = document.getElementById('amount');
     if (amountInput) {
       amountInput.value = amount;
-
-      // Luôn tạo note random khi mở deposit.html
-      const randomNote = generateRandomNote();
-      localStorage.setItem("paymentNote", randomNote);
-
       generateQR();
     }
   }
@@ -112,16 +124,15 @@ function generateQR() {
     checkIntervalId = null;
   }
 
-  const defaultNote = localStorage.getItem("paymentNote") || generateRandomNote();
-  localStorage.setItem("paymentNote", defaultNote);
+  const paymentNote = getOrCreatePaymentNote();
 
   const encodedName = encodeURIComponent(ACCOUNT_NAME);
-  const imageUrl = `https://img.vietqr.io/image/${BANK_CODE}-${ACCOUNT_NUMBER}-compact.png?amount=${amount}&addInfo=${defaultNote}&accountName=${encodedName}`;
+  const imageUrl = `https://img.vietqr.io/image/${BANK_CODE}-${ACCOUNT_NUMBER}-compact.png?amount=${amount}&addInfo=${paymentNote}&accountName=${encodedName}`;
 
   document.getElementById("qr-result").innerHTML = `
     <p><strong>Mã QR VietQR:</strong></p>
     <img src="${imageUrl}" alt="VietQR Code">
-    <p><strong>Nội dung CK:</strong> ${defaultNote}</p>
+    <p><strong>Nội dung CK:</strong> ${paymentNote}</p>
     <p><strong>Người nhận:</strong> ${ACCOUNT_NAME}</p>
     <p><strong>Số tiền:</strong> ${formatMoney(amount)} VND</p>
     <p id="payment-status" style="color: orange; font-weight: bold;">⏳ Đang chờ thanh toán...</p>
@@ -129,7 +140,7 @@ function generateQR() {
   `;
 
   checkIntervalId = setInterval(async () => {
-    const isPaid = await checkPaymentStatus(defaultNote, amount);
+    const isPaid = await checkPaymentStatus(paymentNote, amount);
     if (isPaid) {
       const updated = await updateUserBalance(username, amount);
       if (updated) {
@@ -137,7 +148,7 @@ function generateQR() {
           '✅ Thanh toán thành công! Tiền đã được cộng vào tài khoản.';
         clearInterval(checkIntervalId);
 
-        await recordTransaction(username, amount, defaultNote);
+        await recordTransaction(username, amount, paymentNote);
         await updateBalanceDisplay();
       }
     }
