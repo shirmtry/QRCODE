@@ -5,174 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Shop Tool</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom right, #d4f1f9, #ffffff);
-      text-align: center;
-      padding: 40px;
-    }
-    h1 {
-      margin-bottom: 30px;
-      color: #333;
-    }
-    .product {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      padding: 20px;
-      margin: 20px auto;
-      max-width: 400px;
-    }
-    .product h2 {
-      margin-bottom: 10px;
-      color: #0070f3;
-    }
-    .product ul {
-      list-style: none;
-      padding: 0;
-    }
-    .product ul li {
-      margin: 8px 0;
-      font-size: 16px;
-    }
-    .product button {
-      margin-top: 10px;
-      background-color: #0070f3;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .product button:hover {
-      background-color: #005ac1;
-    }
-    .form-container {
-      display: none;
-      margin-top: 15px;
-    }
-    .form-container input {
-      padding: 8px;
-      margin-bottom: 10px;
-      width: 90%;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    h3 {
-      margin-top: 40px;
-      color: #333;
-    }
-    .back-link {
-      margin-top: 30px;
-      display: inline-block;
-      text-decoration: none;
-      color: #0070f3;
-      font-weight: bold;
-    }
+    body { font-family: Arial, sans-serif; background: linear-gradient(to bottom right, #d4f1f9, #ffffff); text-align: center; padding: 40px; }
+    h1 { margin-bottom: 10px; }
+    .balance { font-weight: bold; color: #2ecc71; margin-bottom: 20px; }
+    .product { background: #fff; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; margin: 20px auto; max-width: 400px; }
+    .product h2 { color: #0070f3; }
+    button { margin-top: 10px; background-color: #0070f3; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    button:hover { background-color: #005ac1; }
+    .back-link { margin-top: 30px; display: inline-block; text-decoration: none; color: #0070f3; font-weight: bold; }
   </style>
 </head>
 <body>
-
-  <h1>🛒 Shop Tool  29/8/2025 bắt đầu cài tool kì FA25</h1>
+  <h1>🛒 Shop Tool</h1>
+  <div class="balance">Số dư: <span id="user-balance">0 VND</span></div>
 
   <div class="product">
     <h2>TOOL EOS</h2>
-    <ul>
-      <li>1 kỳ thường: 600.000đ</li>
-    </ul>
-    <button onclick="showForm('eos', 600000)">Mua ngay</button>
-    <div id="form-eos" class="form-container"></div>
+    <p>1 kỳ thường: 600.000đ</p>
+    <button onclick="buyNow(600000, 'TOOL_EOS')">Mua ngay</button>
   </div>
 
   <div class="product">
     <h2>TOOL SEB</h2>
-    <ul>
-      <li>1 kỳ thường: 400.000đ</li>
-    </ul>
-    <button onclick="showForm('seb', 400000)">Mua ngay</button>
-    <div id="form-seb" class="form-container"></div>
+    <p>1 kỳ thường: 400.000đ</p>
+    <button onclick="buyNow(400000, 'TOOL_SEB')">Mua ngay</button>
   </div>
 
   <div class="product">
-    <h2>TOOL EOS và SEB</h2>
-    <ul>
-      <li>Giá 800.000đ cho 1 kỳ</li>
-    </ul>
-    <button onclick="showForm('combo', 800000)">Mua ngay</button>
-    <div id="form-combo" class="form-container"></div>
+    <h2>TOOL EOS + SEB</h2>
+    <p>Combo: 800.000đ</p>
+    <button onclick="buyNow(800000, 'COMBO')">Mua ngay</button>
   </div>
-
-  <h3>🧠 Tính năng tool EOS và SEB: auto giải, chụp, khoanh.</h3>
-  <h3>✅ Chọn gói xong sẽ chuyển thẳng đến trang thanh toán</h3>
-  <h3>Mua gói xong IB TELE @hup3m2 cài tool</h3>
 
   <a href="deposit.html" class="back-link">← Quay lại trang nạp</a>
 
+  <script src="script.js"></script>
   <script>
-    function showForm(id, amount) {
-      document.querySelectorAll('.form-container').forEach(el => el.innerHTML = '');
-
-      const container = document.getElementById('form-' + id);
-      container.style.display = 'block';
-      container.innerHTML = `
-        <input type="text" id="note-${id}" placeholder="Nhập Tên Tài Khoản Ngân hàng"><br>
-        <button onclick="proceedToPayment(${amount}, 'note-${id}')">Thanh toán ${amount.toLocaleString()}đ</button>
-      `;
-    }
-
-    function proceedToPayment(amount, noteId) {
-      const note = document.getElementById(noteId).value || 'Mua tool';
+    function buyNow(amount, note) {
       window.location.href = `deposit.html?amount=${amount}&note=${encodeURIComponent(note)}`;
     }
+    document.addEventListener('DOMContentLoaded', updateBalanceDisplay);
   </script>
-<script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Chặn các sự kiện xem code
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                alert('Không được phép xem code!');
-            });
-            
-            document.addEventListener('keydown', function(e) {
-                // Chặn F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-                if (e.key === 'F12' || 
-                    (e.ctrlKey && e.shiftKey && e.key === 'I') || 
-                    (e.ctrlKey && e.shiftKey && e.key === 'J') || 
-                    (e.ctrlKey && e.key === 'U')) {
-                    e.preventDefault();
-                    alert('Không được phép xem code!');
-                }
-            });
-            
-            // Chặn mở DevTools bằng cách mở rồi đóng
-            (function() {
-                var devtools = /./;
-                devtools.toString = function() {
-                    this.opened = true;
-                    return '';
-                };
-                setInterval(function() {
-                    if (devtools.opened) {
-                        devtools.opened = false;
-                        alert('Không được phép xem code!');
-                        window.location.reload();
-                    }
-                }, 100);
-            })();
-            
-            // Chỉ cho phép nhập chữ cái và số
-            document.addEventListener('keypress', function(e) {
-                var charCode = e.charCode;
-                // Chỉ cho phép: a-z, A-Z, 0-9
-                if (!((charCode >= 48 && charCode <= 57) || // 0-9
-                      (charCode >= 65 && charCode <= 90) || // A-Z
-                      (charCode >= 97 && charCode <= 122))) { // a-z
-                    e.preventDefault();
-                    alert('Chỉ được phép nhập chữ cái và số!');
-                }
-            });
-        });
-    </script>
 </body>
 </html>
