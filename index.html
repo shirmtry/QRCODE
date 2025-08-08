@@ -1,76 +1,29 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Đăng nhập / Đăng ký</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h2>Đăng nhập</h2>
-    <input type="text" id="login-username" placeholder="Tên đăng nhập" />
-    <input type="password" id="login-password" placeholder="Mật khẩu" />
-    <button onclick="loginUser()">Đăng nhập</button>
+  <h1>Hệ thống nạp tiền VietQR</h1>
 
-    <hr />
-
+  <section id="register">
     <h2>Đăng ký</h2>
-    <input type="text" id="register-username" placeholder="Tên đăng nhập" />
-    <input type="password" id="register-password" placeholder="Mật khẩu" />
+    <input type="text" id="register-username" placeholder="Tên đăng nhập">
+    <input type="password" id="register-password" placeholder="Mật khẩu">
     <button onclick="registerUser()">Đăng ký</button>
-  </div>
-<script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Chặn các sự kiện xem code
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                alert('Không được phép xem code!');
-            });
-            
-            document.addEventListener('keydown', function(e) {
-                // Chặn F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-                if (e.key === 'F12' || 
-                    (e.ctrlKey && e.shiftKey && e.key === 'I') || 
-                    (e.ctrlKey && e.shiftKey && e.key === 'J') || 
-                    (e.ctrlKey && e.key === 'U')) {
-                    e.preventDefault();
-                    alert('Không được phép xem code!');
-                }
-            });
-            
-            // Chặn mở DevTools bằng cách mở rồi đóng
-            (function() {
-                var devtools = /./;
-                devtools.toString = function() {
-                    this.opened = true;
-                    return '';
-                };
-                setInterval(function() {
-                    if (devtools.opened) {
-                        devtools.opened = false;
-                        alert('Không được phép xem code!');
-                        window.location.reload();
-                    }
-                }, 100);
-            })();
-            
-            // Chỉ cho phép nhập chữ cái và số
-            document.addEventListener('keypress', function(e) {
-                var charCode = e.charCode;
-                // Chỉ cho phép: a-z, A-Z, 0-9
-                if (!((charCode >= 48 && charCode <= 57) || // 0-9
-                      (charCode >= 65 && charCode <= 90) || // A-Z
-                      (charCode >= 97 && charCode <= 122))) { // a-z
-                    e.preventDefault();
-                    alert('Chỉ được phép nhập chữ cái và số!');
-                }
-            });
-        });
-    </script>
+  </section>
+
+  <section id="login">
+    <h2>Đăng nhập</h2>
+    <input type="text" id="login-username" placeholder="Tên đăng nhập">
+    <input type="password" id="login-password" placeholder="Mật khẩu">
+    <button onclick="loginUser()">Đăng nhập</button>
+  </section>
+
+  <p><a href="deposit.html">Chuyển đến trang nạp tiền</a></p>
+
   <script src="script.js"></script>
 </body>
 </html>
-
-
