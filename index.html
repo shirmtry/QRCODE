@@ -1,31 +1,47 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Hệ thống nạp tiền VietQR</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mini Shop - Trang chủ</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <!-- Form Đăng nhập -->
-    <div class="card" id="login-form">
-      <h2>Đăng nhập</h2>
-      <input type="text" id="login-username" placeholder="Tên đăng nhập">
-      <input type="password" id="login-password" placeholder="Mật khẩu">
-      <button onclick="loginUser()">Đăng nhập</button>
-      <a href="#" onclick="showRegister()">Chưa có tài khoản? Đăng ký</a>
-    </div>
+  <header class="topbar">
+    <div class="brand">Mini Shop QR</div>
+    <nav class="nav">
+      <a href="shop.html">Shop</a>
+      <a href="deposit.html">Nạp tiền (QR)</a>
+      <a href="manage.html">Admin</a>
+      <span id="header-user" class="header-user"></span>
+      <button id="btn-logout" class="btn small" onclick="logout()">Đăng xuất</button>
+    </nav>
+  </header>
 
-    <!-- Form Đăng ký -->
-    <div class="card" id="register-form" style="display:none;">
-      <h2>Đăng ký</h2>
-      <input type="text" id="register-username" placeholder="Tên đăng nhập">
-      <input type="password" id="register-password" placeholder="Mật khẩu">
-      <button onclick="registerUser()">Đăng ký</button>
-      <a href="#" onclick="showLogin()">Đã có tài khoản? Đăng nhập</a>
-    </div>
-  </div>
+  <main class="container">
+    <section class="card">
+      <h1>Chào mừng tới Mini Shop</h1>
+      <p>Trang demo nạp tiền bằng QR. Đăng ký/đăng nhập để bắt đầu.</p>
+      <div class="row">
+        <a class="btn" href="shop.html">Mua hàng</a>
+        <a class="btn ghost" href="login.html">Đăng nhập / Đăng ký</a>
+      </div>
+    </section>
+  </main>
 
   <script src="script.js"></script>
+  <script>
+    // hiển thị tên user nếu đã login
+    const username = localStorage.getItem('username');
+    const role = localStorage.getItem('role');
+    const headerUser = document.getElementById('header-user');
+    if (username) {
+      headerUser.innerText = `${username} (${role || 'guest'})`;
+      document.getElementById('btn-logout').style.display = 'inline-block';
+    } else {
+      headerUser.innerHTML = '<a href="login.html">Đăng nhập</a>';
+      document.getElementById('btn-logout').style.display = 'none';
+    }
+  </script>
 </body>
 </html>
