@@ -1,436 +1,99 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Nạp Tiền - Admin</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        /* CSS giữ nguyên như trước */
-        .admin-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .filter-controls { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
-        .transaction-tabs { display: flex; margin-bottom: 15px; border-bottom: 1px solid #ddd; }
-        .tab-button { padding: 10px 20px; cursor: pointer; background: #f1f1f1; border: none; border-radius: 5px 5px 0 0; }
-        .tab-button.active { background: #4CAF50; color: white; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; position: sticky; top: 0; }
-        .status-pending { color: #FFA500; font-weight: bold; }
-        .status-completed { color: #4CAF50; font-weight: bold; }
-        .status-rejected { color: #f44336; font-weight: bold; }
-        .action-btn { padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px; color: white; }
-        .btn-approve { background-color: #4CAF50; }
-        .btn-reject { background-color: #f44336; }
-        .btn-delete { background-color: #607d8b; }
-        .search-box { padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 4px; }
-        #logout-btn { float: right; background-color: #f44336; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Quản lý nạp tiền - Admin</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="admin-container">
-        <h1>Quản Lý Nạp Tiền <button id="logout-btn">Đăng xuất</button></h1>
-        
-        <div class="filter-controls">
-            <input type="text" id="search-input" class="search-box" placeholder="Tìm kiếm theo User, Note...">
-            <select id="amount-filter">
-                <option value="all">Tất cả số tiền</option>
-                <option value="0-50000">0 - 50,000 VND</option>
-                <option value="50000-200000">50,000 - 200,000 VND</option>
-                <option value="200000+">Trên 200,000 VND</option>
-            </select>
-            <select id="date-filter">
-                <option value="all">Tất cả ngày</option>
-                <option value="today">Hôm nay</option>
-                <option value="week">Tuần này</option>
-                <option value="month">Tháng này</option>
-            </select>
+  <main class="container">
+    <div class="card">
+      <h1>Quản lý Nạp tiền <button id="logout-btn" class="btn small">Đăng xuất</button></h1>
+
+      <div class="filter-controls">
+        <input id="search-input" class="search-box" placeholder="Tìm kiếm theo user/note...">
+        <select id="amount-filter">
+          <option value="all">Tất cả số tiền</option>
+          <option value="0-50000">0 - 50,000</option>
+          <option value="50000-200000">50,000 - 200,000</option>
+          <option value="200000+">Trên 200,000</option>
+        </select>
+        <select id="date-filter">
+          <option value="all">Tất cả ngày</option>
+          <option value="today">Hôm nay</option>
+          <option value="week">Tuần này</option>
+          <option value="month">Tháng này</option>
+        </select>
+      </div>
+
+      <div class="transaction-tabs">
+        <button class="tab-button active" data-tab="pending">Chờ xử lý</button>
+        <button class="tab-button" data-tab="completed">Đã duyệt</button>
+        <button class="tab-button" data-tab="rejected">Đã từ chối</button>
+      </div>
+
+      <div class="tab-content">
+        <div id="pending-tab" class="tab-pane active">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>User</th><th>Số tiền</th><th>Nội dung</th><th>Ngày tạo</th><th>IP</th><th>Trạng thái</th><th>Hành động</th></tr>
+            </thead>
+            <tbody id="pending-transactions"></tbody>
+          </table>
         </div>
-        
-        <div class="transaction-tabs">
-            <button class="tab-button active" data-tab="pending">Chờ xử lý</button>
-            <button class="tab-button" data-tab="completed">Đã duyệt</button>
-            <button class="tab-button" data-tab="rejected">Đã từ chối</button>
+
+        <div id="completed-tab" class="tab-pane">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>User</th><th>Số tiền</th><th>Nội dung</th><th>Ngày tạo</th><th>Ngày duyệt</th><th>Tổng nạp</th><th>Số dư</th><th>Trạng thái</th><th>Hành động</th></tr>
+            </thead>
+            <tbody id="completed-transactions"></tbody>
+          </table>
         </div>
-        
-        <div class="tab-content">
-            <!-- Tab Chờ xử lý -->
-            <div id="pending-tab" class="tab-pane active">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Username</th>
-                            <th>Số tiền</th>
-                            <th>Nội dung</th>
-                            <th>Ngày tạo</th>
-                            <th>IP</th>
-                            <th>Trạng thái</th>
-                            <th>Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pending-transactions">
-                        <!-- Dữ liệu sẽ được load bằng JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Tab Đã duyệt -->
-            <div id="completed-tab" class="tab-pane">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Username</th>
-                            <th>Số tiền</th>
-                            <th>Nội dung</th>
-                            <th>Ngày tạo</th>
-                            <th>Ngày duyệt</th>
-                            <th>Tổng nạp</th>
-                            <th>Số dư</th>
-                            <th>Trạng thái</th>
-                            <th>Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody id="completed-transactions">
-                        <!-- Dữ liệu sẽ được load bằng JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Tab Đã từ chối -->
-            <div id="rejected-tab" class="tab-pane">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Username</th>
-                            <th>Số tiền</th>
-                            <th>Nội dung</th>
-                            <th>Ngày tạo</th>
-                            <th>Ngày từ chối</th>
-                            <th>Trạng thái</th>
-                            <th>Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rejected-transactions">
-                        <!-- Dữ liệu sẽ được load bằng JavaScript -->
-                    </tbody>
-                </table>
-            </div>
+
+        <div id="rejected-tab" class="tab-pane">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>User</th><th>Số tiền</th><th>Nội dung</th><th>Ngày tạo</th><th>Ngày từ chối</th><th>Trạng thái</th><th>Hành động</th></tr>
+            </thead>
+            <tbody id="rejected-transactions"></tbody>
+          </table>
         </div>
+      </div>
     </div>
+  </main>
 
-    <script>
-        // ===================== CONFIG =====================
-        const SHEET_URL = "https://sheetdb.io/api/v1/j9sqry5cgir1c";
-        const ADMIN_USERNAME = "admin";
-        const ADMIN_PASSWORD = "admin123";
+  <script src="script.js"></script>
+  <script>
+    // init admin page (script.js provides initAdminPage via DOMContentLoaded)
+    // hook search/filter events (already present in earlier manage UI logic — script.js binds loadTransactions on tab click)
+    document.getElementById('logout-btn')?.addEventListener('click', () => {
+      localStorage.removeItem('adminLoggedIn');
+      localStorage.removeItem('role');
+      localStorage.removeItem('username');
+      window.location.href = 'login.html';
+    });
 
-        // ===================== UTILITY FUNCTIONS =====================
-        function formatMoney(amount) {
-            return parseFloat(amount).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
+    // search input filtering (simple client-side filter after load)
+    document.getElementById('search-input')?.addEventListener('input', function () {
+      const s = this.value.trim().toLowerCase();
+      const active = document.querySelector('.tab-button.active')?.getAttribute('data-tab') || 'pending';
+      const rows = document.querySelectorAll(`#${active}-transactions tr`);
+      rows.forEach(r => {
+        r.style.display = r.textContent.toLowerCase().includes(s) ? '' : 'none';
+      });
+    });
 
-        function formatTime(dateString) {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            return date.toLocaleString();
-        }
-
-        function getStatusText(status) {
-            switch(status?.toLowerCase()) {
-                case 'pending': return 'Chờ xử lý';
-                case 'completed': return 'Đã duyệt';
-                case 'rejected': return 'Đã từ chối';
-                default: return status || 'Unknown';
-            }
-        }
-
-        // ===================== TRANSACTION MANAGEMENT =====================
-        async function loadTransactions(status) {
-            try {
-                let url = `${SHEET_URL}/search?status=${status}`;
-                
-                // Áp dụng bộ lọc ngày
-                const dateFilter = document.getElementById('date-filter').value;
-                if (dateFilter !== 'all') {
-                    const now = new Date();
-                    let startDate;
-                    
-                    if (dateFilter === 'today') {
-                        startDate = new Date(now.setHours(0, 0, 0, 0));
-                    } else if (dateFilter === 'week') {
-                        const day = now.getDay();
-                        const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-                        startDate = new Date(now.setDate(diff));
-                        startDate.setHours(0, 0, 0, 0);
-                    } else if (dateFilter === 'month') {
-                        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                    }
-                    
-                    url += `&date[gte]=${startDate.toISOString()}`;
-                }
-                
-                // Áp dụng bộ lọc số tiền
-                const amountFilter = document.getElementById('amount-filter').value;
-                if (amountFilter !== 'all') {
-                    const [min, max] = amountFilter === '200000+' 
-                        ? [200000, 999999999] 
-                        : amountFilter.split('-').map(Number);
-                    url += `&amount[gte]=${min}&amount[lte]=${max}`;
-                }
-
-                const response = await fetch(url);
-                const transactions = await response.json();
-                
-                const tbody = document.getElementById(`${status}-transactions`);
-                if (!tbody) return;
-                
-                tbody.innerHTML = '';
-                
-                transactions.forEach(txn => {
-                    const row = document.createElement('tr');
-                    
-                    if (status === 'pending') {
-                        row.innerHTML = `
-                            <td>${txn.id || ''}</td>
-                            <td>${txn.username || ''}</td>
-                            <td>${formatMoney(txn.amount || 0)} VND</td>
-                            <td>${txn.note || ''}</td>
-                            <td>${formatTime(txn.date)}</td>
-                            <td>${txn.ip || ''}</td>
-                            <td class="status-${status}">${getStatusText(txn.status)}</td>
-                            <td>
-                                <button class="action-btn btn-approve" data-id="${txn.id}">Duyệt</button>
-                                <button class="action-btn btn-reject" data-id="${txn.id}">Từ chối</button>
-                                <button class="action-btn btn-delete" data-id="${txn.id}">Xóa</button>
-                            </td>
-                        `;
-                    } 
-                    else if (status === 'completed') {
-                        row.innerHTML = `
-                            <td>${txn.id || ''}</td>
-                            <td>${txn.username || ''}</td>
-                            <td>${formatMoney(txn.amount || 0)} VND</td>
-                            <td>${txn.note || ''}</td>
-                            <td>${formatTime(txn.date)}</td>
-                            <td>${formatTime(txn.processed_date)}</td>
-                            <td>${formatMoney(txn.total_nap || 0)} VND</td>
-                            <td>${formatMoney(txn.balance || 0)} VND</td>
-                            <td class="status-${status}">${getStatusText(txn.status)}</td>
-                            <td>
-                                <button class="action-btn btn-delete" data-id="${txn.id}">Xóa</button>
-                            </td>
-                        `;
-                    }
-                    else if (status === 'rejected') {
-                        row.innerHTML = `
-                            <td>${txn.id || ''}</td>
-                            <td>${txn.username || ''}</td>
-                            <td>${formatMoney(txn.amount || 0)} VND</td>
-                            <td>${txn.note || ''}</td>
-                            <td>${formatTime(txn.date)}</td>
-                            <td>${formatTime(txn.processed_date)}</td>
-                            <td class="status-${status}">${getStatusText(txn.status)}</td>
-                            <td>
-                                <button class="action-btn btn-delete" data-id="${txn.id}">Xóa</button>
-                            </td>
-                        `;
-                    }
-                    
-                    tbody.appendChild(row);
-                });
-                
-                // Thêm sự kiện cho các nút
-                document.querySelectorAll('.btn-approve').forEach(btn => {
-                    btn.addEventListener('click', approveTransaction);
-                });
-                
-                document.querySelectorAll('.btn-reject').forEach(btn => {
-                    btn.addEventListener('click', rejectTransaction);
-                });
-                
-                document.querySelectorAll('.btn-delete').forEach(btn => {
-                    btn.addEventListener('click', deleteTransaction);
-                });
-                
-            } catch (error) {
-                console.error(`Lỗi khi tải giao dịch ${status}:`, error);
-                alert('Có lỗi xảy ra khi tải dữ liệu');
-            }
-        }
-
-        async function approveTransaction(e) {
-            const transactionId = e.target.getAttribute('data-id');
-            if (!confirm('Xác nhận duyệt giao dịch này?')) return;
-            
-            try {
-                // 1. Lấy thông tin giao dịch
-                const txnRes = await fetch(`${SHEET_URL}/id/${transactionId}`);
-                const transaction = await txnRes.json();
-                
-                if (!transaction) {
-                    alert('Không tìm thấy giao dịch');
-                    return;
-                }
-                
-                // 2. Cập nhật thông tin user (balance và total_nap)
-                const userRes = await fetch(`${SHEET_URL}/search?username=${transaction.username}`);
-                const users = await userRes.json();
-                
-                if (!users || users.length === 0) {
-                    alert('Không tìm thấy user');
-                    return;
-                }
-                
-                const user = users[0];
-                const newBalance = parseFloat(user.balance || 0) + parseFloat(transaction.amount || 0);
-                const newTotalNap = parseFloat(user.total_nap || 0) + parseFloat(transaction.amount || 0);
-                
-                // 3. Cập nhật đồng thời user và transaction
-                const [userUpdate, txnUpdate] = await Promise.all([
-                    fetch(`${SHEET_URL}/id/${user.id}`, {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            data: {
-                                balance: newBalance,
-                                total_nap: newTotalNap
-                            }
-                        })
-                    }),
-                    fetch(`${SHEET_URL}/id/${transactionId}`, {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            data: {
-                                status: "completed",
-                                processed: "true",
-                                processed_date: new Date().toISOString()
-                            }
-                        })
-                    })
-                ]);
-                
-                if (userUpdate.ok && txnUpdate.ok) {
-                    alert('Đã duyệt giao dịch thành công!');
-                    loadTransactions('pending');
-                    loadTransactions('completed');
-                } else {
-                    alert('Lỗi khi cập nhật dữ liệu');
-                }
-            } catch (error) {
-                console.error('Lỗi khi duyệt giao dịch:', error);
-                alert('Có lỗi xảy ra khi duyệt giao dịch');
-            }
-        }
-
-        async function rejectTransaction(e) {
-            const transactionId = e.target.getAttribute('data-id');
-            if (!confirm('Xác nhận từ chối giao dịch này?')) return;
-            
-            try {
-                const response = await fetch(`${SHEET_URL}/id/${transactionId}`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        data: {
-                            status: "rejected",
-                            processed: "true",
-                            processed_date: new Date().toISOString()
-                        }
-                    })
-                });
-                
-                if (response.ok) {
-                    alert('Đã từ chối giao dịch');
-                    loadTransactions('pending');
-                    loadTransactions('rejected');
-                } else {
-                    alert('Lỗi khi từ chối giao dịch');
-                }
-            } catch (error) {
-                console.error('Lỗi khi từ chối giao dịch:', error);
-                alert('Có lỗi xảy ra khi từ chối giao dịch');
-            }
-        }
-
-        async function deleteTransaction(e) {
-            const transactionId = e.target.getAttribute('data-id');
-            if (!confirm('Xác nhận xóa vĩnh viễn giao dịch này?')) return;
-            
-            try {
-                const response = await fetch(`${SHEET_URL}/id/${transactionId}`, {
-                    method: "DELETE"
-                });
-                
-                if (response.ok) {
-                    alert('Đã xóa giao dịch');
-                    const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
-                    loadTransactions(activeTab);
-                } else {
-                    alert('Lỗi khi xóa giao dịch');
-                }
-            } catch (error) {
-                console.error('Lỗi khi xóa giao dịch:', error);
-                alert('Có lỗi xảy ra khi xóa giao dịch');
-            }
-        }
-
-        // ===================== INITIALIZATION =====================
-        document.addEventListener('DOMContentLoaded', function() {
-            // Kiểm tra đăng nhập admin
-            if (!localStorage.getItem('adminLoggedIn')) {
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            // Xử lý chuyển tab
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.addEventListener('click', function() {
-                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-                    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
-                    
-                    this.classList.add('active');
-                    const tabId = this.getAttribute('data-tab') + '-tab';
-                    document.getElementById(tabId).classList.add('active');
-                    
-                    loadTransactions(this.getAttribute('data-tab'));
-                });
-            });
-            
-            // Xử lý tìm kiếm
-            document.getElementById('search-input').addEventListener('input', function() {
-                const searchValue = this.value.toLowerCase();
-                const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
-                const rows = document.querySelectorAll(`#${activeTab}-transactions tr`);
-                
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(searchValue) ? '' : 'none';
-                });
-            });
-            
-            // Xử lý filter
-            document.getElementById('date-filter').addEventListener('change', function() {
-                const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
-                loadTransactions(activeTab);
-            });
-            
-            document.getElementById('amount-filter').addEventListener('change', function() {
-                const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
-                loadTransactions(activeTab);
-            });
-            
-            // Xử lý đăng xuất
-            document.getElementById('logout-btn').addEventListener('click', function() {
-                localStorage.removeItem('adminLoggedIn');
-                window.location.href = 'index.html';
-            });
-            
-            // Load dữ liệu ban đầu
-            loadTransactions('pending');
-        });
-    </script>
+    // filters will trigger reload by calling loadTransactions in script.js when used:
+    document.getElementById('date-filter')?.addEventListener('change', () => {
+      const active = document.querySelector('.tab-button.active')?.getAttribute('data-tab') || 'pending';
+      loadTransactions(active);
+    });
+    document.getElementById('amount-filter')?.addEventListener('change', () => {
+      const active = document.querySelector('.tab-button.active')?.getAttribute('data-tab') || 'pending';
+      loadTransactions(active);
+    });
+  </script>
 </body>
 </html>
