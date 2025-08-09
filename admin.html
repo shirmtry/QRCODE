@@ -1,99 +1,98 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Quản lý nạp tiền - Admin</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Quản lý nạp - Admin</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #333;
+            color: white;
+            padding: 15px 20px;
+            font-size: 20px;
+        }
+
+        .container {
+            width: 95%;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 16px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #f4f4f4;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
+        }
+
+        button {
+            padding: 6px 12px;
+            background: #28a745;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #218838;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            float: right;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+    </style>
 </head>
 <body>
-  <main class="container">
-    <div class="card">
-      <h1>Quản lý Nạp tiền <button id="logout-btn" class="btn small">Đăng xuất</button></h1>
+    <header>
+        📊 Quản lý nạp tiền - Admin
+        <button class="logout-btn" onclick="logout()">Đăng xuất</button>
+    </header>
 
-      <div class="filter-controls">
-        <input id="search-input" class="search-box" placeholder="Tìm kiếm theo user/note...">
-        <select id="amount-filter">
-          <option value="all">Tất cả số tiền</option>
-          <option value="0-50000">0 - 50,000</option>
-          <option value="50000-200000">50,000 - 200,000</option>
-          <option value="200000+">Trên 200,000</option>
-        </select>
-        <select id="date-filter">
-          <option value="all">Tất cả ngày</option>
-          <option value="today">Hôm nay</option>
-          <option value="week">Tuần này</option>
-          <option value="month">Tháng này</option>
-        </select>
-      </div>
-
-      <div class="transaction-tabs">
-        <button class="tab-button active" data-tab="pending">Chờ xử lý</button>
-        <button class="tab-button" data-tab="completed">Đã duyệt</button>
-        <button class="tab-button" data-tab="rejected">Đã từ chối</button>
-      </div>
-
-      <div class="tab-content">
-        <div id="pending-tab" class="tab-pane active">
-          <table>
+    <div class="container">
+        <h2>Danh sách yêu cầu nạp</h2>
+        <table>
             <thead>
-              <tr><th>ID</th><th>User</th><th>Số tiền</th><th>Nội dung</th><th>Ngày tạo</th><th>IP</th><th>Trạng thái</th><th>Hành động</th></tr>
+                <tr>
+                    <th>Người dùng</th>
+                    <th>Số tiền</th>
+                    <th>Mã giao dịch</th>
+                    <th>Hành động</th>
+                </tr>
             </thead>
-            <tbody id="pending-transactions"></tbody>
-          </table>
-        </div>
-
-        <div id="completed-tab" class="tab-pane">
-          <table>
-            <thead>
-              <tr><th>ID</th><th>User</th><th>Số tiền</th><th>Nội dung</th><th>Ngày tạo</th><th>Ngày duyệt</th><th>Tổng nạp</th><th>Số dư</th><th>Trạng thái</th><th>Hành động</th></tr>
-            </thead>
-            <tbody id="completed-transactions"></tbody>
-          </table>
-        </div>
-
-        <div id="rejected-tab" class="tab-pane">
-          <table>
-            <thead>
-              <tr><th>ID</th><th>User</th><th>Số tiền</th><th>Nội dung</th><th>Ngày tạo</th><th>Ngày từ chối</th><th>Trạng thái</th><th>Hành động</th></tr>
-            </thead>
-            <tbody id="rejected-transactions"></tbody>
-          </table>
-        </div>
-      </div>
+            <tbody id="depositTable">
+                <tr><td colspan="4">Đang tải dữ liệu...</td></tr>
+            </tbody>
+        </table>
     </div>
-  </main>
-
-  <script src="script.js"></script>
-  <script>
-    // init admin page (script.js provides initAdminPage via DOMContentLoaded)
-    // hook search/filter events (already present in earlier manage UI logic — script.js binds loadTransactions on tab click)
-    document.getElementById('logout-btn')?.addEventListener('click', () => {
-      localStorage.removeItem('adminLoggedIn');
-      localStorage.removeItem('role');
-      localStorage.removeItem('username');
-      window.location.href = 'login.html';
-    });
-
-    // search input filtering (simple client-side filter after load)
-    document.getElementById('search-input')?.addEventListener('input', function () {
-      const s = this.value.trim().toLowerCase();
-      const active = document.querySelector('.tab-button.active')?.getAttribute('data-tab') || 'pending';
-      const rows = document.querySelectorAll(`#${active}-transactions tr`);
-      rows.forEach(r => {
-        r.style.display = r.textContent.toLowerCase().includes(s) ? '' : 'none';
-      });
-    });
-
-    // filters will trigger reload by calling loadTransactions in script.js when used:
-    document.getElementById('date-filter')?.addEventListener('change', () => {
-      const active = document.querySelector('.tab-button.active')?.getAttribute('data-tab') || 'pending';
-      loadTransactions(active);
-    });
-    document.getElementById('amount-filter')?.addEventListener('change', () => {
-      const active = document.querySelector('.tab-button.active')?.getAttribute('data-tab') || 'pending';
-      loadTransactions(active);
-    });
-  </script>
 </body>
 </html>
