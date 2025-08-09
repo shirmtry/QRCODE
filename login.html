@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Đăng nhập - Mini Shop</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container narrow">
+    <div class="card">
+      <h2>Đăng nhập</h2>
+
+      <!-- User login -->
+      <form id="user-login-form" onsubmit="event.preventDefault(); loginUser();">
+        <label>Username</label>
+        <input id="login-username" type="text" placeholder="username" required>
+        <label>Mật khẩu</label>
+        <input id="login-password" type="password" placeholder="mật khẩu" required>
+        <div class="row" style="justify-content:space-between;align-items:center;margin-top:10px">
+          <button class="btn">Đăng nhập</button>
+          <a class="ghost small" href="register.html">Chưa có tài khoản? Đăng ký</a>
+        </div>
+      </form>
+
+      <hr style="margin:18px 0">
+
+      <!-- Admin login -->
+      <h3>Đăng nhập Admin</h3>
+      <form id="admin-login-form" onsubmit="event.preventDefault(); adminLogin();">
+        <label>Admin username</label>
+        <input id="admin-username" type="text" placeholder="admin" required>
+        <label>Admin password</label>
+        <input id="admin-password" type="password" placeholder="admin123" required>
+        <div style="margin-top:10px">
+          <button class="btn">Đăng nhập Admin</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
