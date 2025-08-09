@@ -4,6 +4,8 @@ const BANK_CODE = "ACB";
 const ACCOUNT_NUMBER = "43146717";
 const ACCOUNT_NAME = "DINH TAN HUY";
 const CHECK_INTERVAL = 60000; // 60 giây
+const ADMIN_USERNAME = "nguhuy";
+const ADMIN_PASSWORD = "    huyngu";
 let checkIntervalId = null;
 let countdownIntervalId = null;
 
@@ -18,6 +20,12 @@ function formatTime(seconds) {
   return `${m}:${s}`;
 }
 
+function formatDateTime(dateString) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleString('vi-VN');
+}
+
 function generateRandomNote(length = 7) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let result = "";
@@ -25,6 +33,16 @@ function generateRandomNote(length = 7) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return result;
+}
+
+function getStatusText(status) {
+  switch(status?.toLowerCase()) {
+    case 'pending': return 'Chờ xử lý';
+    case 'completed': return 'Đã duyệt';
+    case 'approved': return 'Đã xác nhận';
+    case 'rejected': return 'Đã từ chối';
+    default: return status || 'Unknown';
+  }
 }
 
 // ===================== PAYMENT NOTE MANAGEMENT =====================
@@ -60,7 +78,7 @@ async function recordPendingTransaction(username, amount, note) {
     const existing = await checkResponse.json();
     if (existing && existing.length > 0) {
       console.log("Note đã tồn tại:", note);
-      return;
+      return { success: false, message: "Note đã tồn tại" };
     }
 
     const pendingData = {
@@ -70,7 +88,8 @@ async function recordPendingTransaction(username, amount, note) {
         note: note,
         status: "pending",
         date: new Date().toISOString(),
-        processed: "false"
+        processed: "false",
+        admin_approved: "false"
       }
     };
 
@@ -83,6 +102,7 @@ async function recordPendingTransaction(username, amount, note) {
     if (!response.ok) {
       throw new Error("Failed to record transaction");
     }
+    return { success: true };
   } catch (error) {
     console.error("Lỗi khi ghi giao dịch:", error);
     throw error;
@@ -114,10 +134,10 @@ async function checkPaymentStatus(note, amount) {
     }
 
     const status = txn.status.toUpperCase();
-    if (status === "COMPLETED" || status === "C") {
+    if (status === "COMPLETED" || status === "APPROVED") {
       return {
         ...txn,
-        adminConfirmed: status === "C"
+        adminConfirmed: txn.admin_approved === "true"
       };
     }
 
@@ -156,6 +176,7 @@ async function updateUserBalance(username, amount, transactionId, adminConfirmed
     const user = users[0];
     const currentBalance = parseFloat(user.balance || 0);
     const newBalance = currentBalance + parseFloat(amount);
+    const newTotalNap = parseFloat(user.total_nap || 0) + parseFloat(amount);
 
     // Update both user and transaction atomically
     const [userUpdate, txnUpdate] = await Promise.all([
@@ -165,6 +186,7 @@ async function updateUserBalance(username, amount, transactionId, adminConfirmed
         body: JSON.stringify({
           data: {
             balance: newBalance,
+            total_nap: newTotalNap,
             last_payment: new Date().toISOString()
           }
         })
@@ -175,7 +197,9 @@ async function updateUserBalance(username, amount, transactionId, adminConfirmed
         body: JSON.stringify({
           data: {
             processed: "true",
-            status: adminConfirmed ? "completed" : "completed"
+            status: adminConfirmed ? "approved" : "completed",
+            admin_approved: adminConfirmed ? "true" : "false",
+            processed_date: new Date().toISOString()
           }
         })
       })
@@ -190,6 +214,190 @@ async function updateUserBalance(username, amount, transactionId, adminConfirmed
   } catch (error) {
     console.error("Lỗi khi cập nhật số dư:", error);
     return { success: false };
+  }
+}
+
+// ===================== ADMIN FUNCTIONS =====================
+async function loadTransactions(status) {
+  try {
+    let url = `${SHEET_URL}/search?status=${status}&sort_by=date&order=desc`;
+    
+    const response = await fetch(url);
+    const transactions = await response.json();
+    
+    const tbody = document.getElementById(`${status}-transactions`);
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    transactions.forEach(txn => {
+      const row = document.createElement('tr');
+      
+      if (status === 'pending') {
+        row.innerHTML = `
+          <td>${txn.id || ''}</td>
+          <td>${txn.username || ''}</td>
+          <td>${formatMoney(txn.amount || 0)} VND</td>
+          <td>${txn.note || ''}</td>
+          <td>${formatDateTime(txn.date)}</td>
+          <td>${txn.ip || ''}</td>
+          <td class="status-${status}">${getStatusText(txn.status)}</td>
+          <td>
+            <button class="action-btn btn-approve" data-id="${txn.id}">Duyệt</button>
+            <button class="action-btn btn-reject" data-id="${txn.id}">Từ chối</button>
+            <button class="action-btn btn-delete" data-id="${txn.id}">Xóa</button>
+          </td>
+        `;
+      } 
+      else if (status === 'completed' || status === 'approved') {
+        row.innerHTML = `
+          <td>${txn.id || ''}</td>
+          <td>${txn.username || ''}</td>
+          <td>${formatMoney(txn.amount || 0)} VND</td>
+          <td>${txn.note || ''}</td>
+          <td>${formatDateTime(txn.date)}</td>
+          <td>${formatDateTime(txn.processed_date)}</td>
+          <td>${formatMoney(txn.total_nap || 0)} VND</td>
+          <td>${formatMoney(txn.balance || 0)} VND</td>
+          <td class="status-${status}">${getStatusText(txn.status)}</td>
+          <td>
+            <button class="action-btn btn-delete" data-id="${txn.id}">Xóa</button>
+          </td>
+        `;
+      }
+      else if (status === 'rejected') {
+        row.innerHTML = `
+          <td>${txn.id || ''}</td>
+          <td>${txn.username || ''}</td>
+          <td>${formatMoney(txn.amount || 0)} VND</td>
+          <td>${txn.note || ''}</td>
+          <td>${formatDateTime(txn.date)}</td>
+          <td>${formatDateTime(txn.processed_date)}</td>
+          <td class="status-${status}">${getStatusText(txn.status)}</td>
+          <td>
+            <button class="action-btn btn-delete" data-id="${txn.id}">Xóa</button>
+          </td>
+        `;
+      }
+      
+      tbody.appendChild(row);
+    });
+    
+    // Thêm sự kiện cho các nút
+    document.querySelectorAll('.btn-approve').forEach(btn => {
+      btn.addEventListener('click', approveTransaction);
+    });
+    
+    document.querySelectorAll('.btn-reject').forEach(btn => {
+      btn.addEventListener('click', rejectTransaction);
+    });
+    
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+      btn.addEventListener('click', deleteTransaction);
+    });
+    
+  } catch (error) {
+    console.error(`Lỗi khi tải giao dịch ${status}:`, error);
+    alert('Có lỗi xảy ra khi tải dữ liệu');
+  }
+}
+
+async function approveTransaction(e) {
+  const transactionId = e.target.getAttribute('data-id');
+  if (!confirm('Xác nhận duyệt giao dịch này?')) return;
+  
+  try {
+    // 1. Lấy thông tin giao dịch
+    const txnRes = await fetch(`${SHEET_URL}/id/${transactionId}`);
+    const transaction = await txnRes.json();
+    
+    if (!transaction) {
+      alert('Không tìm thấy giao dịch');
+      return;
+    }
+    
+    // 2. Cập nhật thông tin user và giao dịch
+    const { success } = await updateUserBalance(
+      transaction.username,
+      transaction.amount,
+      transactionId,
+      true // adminConfirmed
+    );
+    
+    if (success) {
+      alert('Đã duyệt giao dịch thành công!');
+      loadTransactions('pending');
+      loadTransactions('completed');
+    } else {
+      alert('Lỗi khi cập nhật dữ liệu');
+    }
+  } catch (error) {
+    console.error('Lỗi khi duyệt giao dịch:', error);
+    alert('Có lỗi xảy ra khi duyệt giao dịch');
+  }
+}
+
+async function rejectTransaction(e) {
+  const transactionId = e.target.getAttribute('data-id');
+  if (!confirm('Xác nhận từ chối giao dịch này?')) return;
+  
+  try {
+    const response = await fetch(`${SHEET_URL}/id/${transactionId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        data: {
+          status: "rejected",
+          processed: "true",
+          processed_date: new Date().toISOString()
+        }
+      })
+    });
+    
+    if (response.ok) {
+      alert('Đã từ chối giao dịch');
+      loadTransactions('pending');
+      loadTransactions('rejected');
+    } else {
+      alert('Lỗi khi từ chối giao dịch');
+    }
+  } catch (error) {
+    console.error('Lỗi khi từ chối giao dịch:', error);
+    alert('Có lỗi xảy ra khi từ chối giao dịch');
+  }
+}
+
+async function deleteTransaction(e) {
+  const transactionId = e.target.getAttribute('data-id');
+  if (!confirm('Xác nhận xóa vĩnh viễn giao dịch này?')) return;
+  
+  try {
+    const response = await fetch(`${SHEET_URL}/id/${transactionId}`, {
+      method: "DELETE"
+    });
+    
+    if (response.ok) {
+      alert('Đã xóa giao dịch');
+      const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
+      loadTransactions(activeTab);
+    } else {
+      alert('Lỗi khi xóa giao dịch');
+    }
+  } catch (error) {
+    console.error('Lỗi khi xóa giao dịch:', error);
+    alert('Có lỗi xảy ra khi xóa giao dịch');
+  }
+}
+
+function adminLogin() {
+  const username = document.getElementById('admin-username')?.value;
+  const password = document.getElementById('admin-password')?.value;
+  
+  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    localStorage.setItem('adminLoggedIn', 'true');
+    window.location.href = 'manage.html';
+  } else {
+    alert('Sai thông tin đăng nhập admin');
   }
 }
 
@@ -424,9 +632,54 @@ function showRegister() {
   document.getElementById("register-form").style.display = "block";
 }
 
+function initAdminPage() {
+  if (!localStorage.getItem('adminLoggedIn')) {
+    window.location.href = 'index.html';
+    return;
+  }
+  
+  // Load transactions for all tabs
+  loadTransactions('pending');
+  loadTransactions('completed');
+  loadTransactions('rejected');
+  
+  // Set active tab
+  document.querySelector('.tab-button').classList.add('active');
+  document.getElementById('pending-tab').classList.add('active');
+  
+  // Tab switching
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', function() {
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+      
+      this.classList.add('active');
+      const tabId = this.getAttribute('data-tab') + '-tab';
+      document.getElementById(tabId).classList.add('active');
+    });
+  });
+  
+  // Logout button
+  document.getElementById('logout-btn')?.addEventListener('click', () => {
+    localStorage.removeItem('adminLoggedIn');
+    window.location.href = 'index.html';
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   if (window.location.pathname.includes('deposit.html')) {
     handleAutoGenerateQR();
     updateBalanceDisplay();
   }
+  else if (window.location.pathname.includes('manage.html')) {
+    initAdminPage();
+  }
 });
+
+// ===================== GLOBAL EXPORTS =====================
+window.generateQR = generateQR;
+window.registerUser = registerUser;
+window.loginUser = loginUser;
+window.showLogin = showLogin;
+window.showRegister = showRegister;
+window.adminLogin = adminLogin;
