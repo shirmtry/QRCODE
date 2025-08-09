@@ -401,7 +401,7 @@ function adminLogin() {
     localStorage.setItem('adminLoggedIn', 'true');
     // optional: set admin username for display
     localStorage.setItem('username', ADMIN_USERNAME);
-    window.location.href = 'manage.html';
+    window.location.href = 'admin.html';
   } else {
     alert('Sai thông tin đăng nhập admin');
   }
@@ -473,7 +473,7 @@ async function loginUser() {
     localStorage.setItem('role', 'admin');
     localStorage.setItem('adminLoggedIn', 'true');
     localStorage.setItem('username', ADMIN_USERNAME);
-    window.location.href = 'manage.html';
+    window.location.href = 'admin.html';
     return;
   }
 
