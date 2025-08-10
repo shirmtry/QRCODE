@@ -3,133 +3,216 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mini Shop - Trang chủ</title>
+  <title>Mini Shop - Nạp tiền QR tiện lợi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Thêm style cụ thể cho trang index */
-    .hero {
-      text-align: center;
-      padding: 2rem;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      border-radius: 8px;
-      margin-bottom: 2rem;
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --light: #f8f9fa;
+      --dark: #212529;
     }
     
-    .btn-group {
+    .hero {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      padding: 4rem 2rem;
+      text-align: center;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      animation: fadeIn 1s ease;
+    }
+    
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto 2rem;
+    }
+    
+    .cta-buttons {
       display: flex;
       gap: 1rem;
       justify-content: center;
-      margin-top: 1.5rem;
       flex-wrap: wrap;
+    }
+    
+    .btn-primary {
+      background-color: white;
+      color: var(--primary);
+      padding: 0.8rem 2rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .btn-secondary {
+      background-color: transparent;
+      color: white;
+      border: 2px solid white;
+      padding: 0.8rem 2rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+      background-color: rgba(255,255,255,0.1);
     }
     
     .features {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-      margin-top: 2rem;
+      gap: 2rem;
+      margin: 3rem 0;
     }
     
     .feature-card {
       background: white;
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
       text-align: center;
     }
     
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .feature-icon {
+      font-size: 2.5rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    
+    .feature-card h3 {
+      color: var(--dark);
+      margin-bottom: 1rem;
+    }
+    
+    .feature-card p {
+      color: #6c757d;
+      margin-bottom: 1.5rem;
+    }
+    
+    .feature-link {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .feature-link:hover {
+      text-decoration: underline;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
     @media (max-width: 768px) {
-      .nav {
-        flex-direction: column;
-        align-items: flex-start;
+      .hero {
+        padding: 2rem 1rem;
       }
       
-      .nav a {
-        margin: 0.5rem 0;
+      .hero h1 {
+        font-size: 2rem;
+      }
+      
+      .cta-buttons {
+        flex-direction: column;
+        align-items: center;
       }
     }
   </style>
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">Mini Shop QR</div>
+    <div class="brand">Mini Shop <span class="highlight">QR</span></div>
     <nav class="nav">
-      <a href="shop.html">Shop</a>
-      <a href="deposit.html">Nạp tiền (QR)</a>
-      <a href="admin.html" id="admin-link" style="display:none">Admin</a>
+      <a href="shop.html"><i class="fas fa-store"></i> Shop</a>
+      <a href="deposit.html"><i class="fas fa-qrcode"></i> Nạp tiền</a>
       <span id="header-user" class="header-user"></span>
-      <button id="btn-logout" class="btn small" onclick="logout()" style="display:none">Đăng xuất</button>
+      <button id="btn-logout" class="btn small" onclick="logout()" style="display:none"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
     </nav>
   </header>
 
   <main class="container">
     <section class="hero">
-      <h1>Chào mừng tới Mini Shop</h1>
-      <p>Trang demo nạp tiền bằng QR. Đăng ký/đăng nhập để bắt đầu.</p>
+      <h1>Chào mừng đến với Mini Shop</h1>
+      <p>Trải nghiệm nạp tiền siêu tốc bằng QR Code và mua sắm tiện lợi</p>
       
-      <div class="btn-group">
-        <a class="btn primary" href="shop.html">Mua hàng</a>
-        <a class="btn" href="deposit.html">Nạp tiền ngay</a>
+      <div class="cta-buttons">
+        <a href="shop.html" class="btn btn-primary"><i class="fas fa-shopping-cart"></i> Mua hàng ngay</a>
+        <a href="deposit.html" class="btn btn-secondary"><i class="fas fa-wallet"></i> Nạp tiền ngay</a>
       </div>
     </section>
     
     <section class="features">
       <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-shopping-bag"></i></div>
         <h3>Mua sắm tiện lợi</h3>
-        <p>Khám phá các sản phẩm đa dạng với giá cả hợp lý</p>
-        <a href="shop.html" class="btn small">Xem sản phẩm</a>
+        <p>Khám phá hàng ngàn sản phẩm đa dạng với giá cả cạnh tranh nhất thị trường</p>
+        <a href="shop.html" class="feature-link">Xem sản phẩm <i class="fas fa-arrow-right"></i></a>
       </div>
       
       <div class="feature-card">
-        <h3>Nạp tiền dễ dàng</h3>
-        <p>Nạp tiền vào tài khoản chỉ với vài thao tác đơn giản</p>
-        <a href="deposit.html" class="btn small">Nạp tiền ngay</a>
+        <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+        <h3>Nạp tiền siêu tốc</h3>
+        <p>Nạp tiền vào tài khoản chỉ trong 30 giây với công nghệ QR Code hiện đại</p>
+        <a href="deposit.html" class="feature-link">Nạp tiền ngay <i class="fas fa-arrow-right"></i></a>
       </div>
       
       <div class="feature-card">
-        <h3>Quản lý đơn giản</h3>
-        <p>Theo dõi lịch sử giao dịch và quản lý tài khoản</p>
-        <a href="login.html" class="btn small">Đăng nhập</a>
+        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+        <h3>Quản lý thông minh</h3>
+        <p>Theo dõi lịch sử giao dịch và quản lý tài khoản mọi lúc mọi nơi</p>
+        <a href="login.html" class="feature-link">Đăng nhập <i class="fas fa-arrow-right"></i></a>
       </div>
     </section>
   </main>
 
   <script src="script.js"></script>
   <script>
-    // Kiểm tra trạng thái đăng nhập khi trang tải
+    // Kiểm tra trạng thái đăng nhập
     document.addEventListener('DOMContentLoaded', function() {
       const username = localStorage.getItem('username');
-      const role = localStorage.getItem('role');
       const headerUser = document.getElementById('header-user');
       const btnLogout = document.getElementById('btn-logout');
-      const adminLink = document.getElementById('admin-link');
       
       if (username) {
-        // Hiển thị thông tin người dùng đã đăng nhập
         headerUser.innerHTML = `
-          <span class="user-info">
-            <strong>${username}</strong>
-            ${role ? `<span class="user-role">(${role})</span>` : ''}
+          <span class="user-greeting">
+            <i class="fas fa-user-circle"></i> Xin chào, ${username}
           </span>
         `;
         btnLogout.style.display = 'inline-block';
-        
-        // Hiển thị link admin nếu là admin
-        if (role === 'admin') {
-          adminLink.style.display = 'inline-block';
-        }
       } else {
-        // Chưa đăng nhập
-        headerUser.innerHTML = '<a href="login.html" class="login-link">Đăng nhập / Đăng ký</a>';
-        btnLogout.style.display = 'none';
+        headerUser.innerHTML = `
+          <a href="login.html" class="login-btn">
+            <i class="fas fa-sign-in-alt"></i> Đăng nhập/Đăng ký
+          </a>
+        `;
       }
     });
     
-    // Hàm đăng xuất
     function logout() {
       localStorage.removeItem('username');
-      localStorage.removeItem('role');
-      localStorage.removeItem('token');
       window.location.href = 'index.html';
     }
   </script>
