@@ -2,9 +2,53 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mini Shop - Trang chủ</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Thêm style cụ thể cho trang index */
+    .hero {
+      text-align: center;
+      padding: 2rem;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .feature-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+      .nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .nav a {
+        margin: 0.5rem 0;
+      }
+    }
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -12,35 +56,81 @@
     <nav class="nav">
       <a href="shop.html">Shop</a>
       <a href="deposit.html">Nạp tiền (QR)</a>
-      <a href="manage.html">Admin</a>
+      <a href="admin.html" id="admin-link" style="display:none">Admin</a>
       <span id="header-user" class="header-user"></span>
-      <button id="btn-logout" class="btn small" onclick="logout()">Đăng xuất</button>
+      <button id="btn-logout" class="btn small" onclick="logout()" style="display:none">Đăng xuất</button>
     </nav>
   </header>
 
   <main class="container">
-    <section class="card">
+    <section class="hero">
       <h1>Chào mừng tới Mini Shop</h1>
       <p>Trang demo nạp tiền bằng QR. Đăng ký/đăng nhập để bắt đầu.</p>
-      <div class="row">
-        <a class="btn" href="shop.html">Mua hàng</a>
-        <a class="btn ghost" href="login.html">Đăng nhập / Đăng ký</a>
+      
+      <div class="btn-group">
+        <a class="btn primary" href="shop.html">Mua hàng</a>
+        <a class="btn" href="deposit.html">Nạp tiền ngay</a>
+      </div>
+    </section>
+    
+    <section class="features">
+      <div class="feature-card">
+        <h3>Mua sắm tiện lợi</h3>
+        <p>Khám phá các sản phẩm đa dạng với giá cả hợp lý</p>
+        <a href="shop.html" class="btn small">Xem sản phẩm</a>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Nạp tiền dễ dàng</h3>
+        <p>Nạp tiền vào tài khoản chỉ với vài thao tác đơn giản</p>
+        <a href="deposit.html" class="btn small">Nạp tiền ngay</a>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Quản lý đơn giản</h3>
+        <p>Theo dõi lịch sử giao dịch và quản lý tài khoản</p>
+        <a href="login.html" class="btn small">Đăng nhập</a>
       </div>
     </section>
   </main>
 
   <script src="script.js"></script>
   <script>
-    // hiển thị tên user nếu đã login
-    const username = localStorage.getItem('username');
-    const role = localStorage.getItem('role');
-    const headerUser = document.getElementById('header-user');
-    if (username) {
-      headerUser.innerText = `${username} (${role || 'guest'})`;
-      document.getElementById('btn-logout').style.display = 'inline-block';
-    } else {
-      headerUser.innerHTML = '<a href="login.html">Đăng nhập</a>';
-      document.getElementById('btn-logout').style.display = 'none';
+    // Kiểm tra trạng thái đăng nhập khi trang tải
+    document.addEventListener('DOMContentLoaded', function() {
+      const username = localStorage.getItem('username');
+      const role = localStorage.getItem('role');
+      const headerUser = document.getElementById('header-user');
+      const btnLogout = document.getElementById('btn-logout');
+      const adminLink = document.getElementById('admin-link');
+      
+      if (username) {
+        // Hiển thị thông tin người dùng đã đăng nhập
+        headerUser.innerHTML = `
+          <span class="user-info">
+            <strong>${username}</strong>
+            ${role ? `<span class="user-role">(${role})</span>` : ''}
+          </span>
+        `;
+        btnLogout.style.display = 'inline-block';
+        
+        // Hiển thị link admin nếu là admin
+        if (role === 'admin') {
+          adminLink.style.display = 'inline-block';
+        }
+      } else {
+        // Chưa đăng nhập
+        headerUser.innerHTML = '<a href="login.html" class="login-link">Đăng nhập / Đăng ký</a>';
+        btnLogout.style.display = 'none';
+      }
+    });
+    
+    // Hàm đăng xuất
+    function logout() {
+      localStorage.removeItem('username');
+      localStorage.removeItem('role');
+      localStorage.removeItem('token');
+      window.location.href = 'index.html';
     }
   </script>
 </body>
