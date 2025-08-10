@@ -3,100 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Shop - Nạp tiền QR</title>
+    <title>Đăng nhập - Mini Shop</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5;
-            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-        .container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            text-align: center;
-        }
-        .welcome-box {
+        .login-container {
             background: white;
             padding: 40px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
         }
         h1 {
             color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        .subtitle {
-            color: #7f8c8d;
+            text-align: center;
             margin-bottom: 30px;
-            font-size: 1.1em;
         }
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
+        .form-group {
             margin-bottom: 20px;
         }
-        .btn {
-            padding: 12px 30px;
-            border-radius: 5px;
-            text-decoration: none;
+        label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: 600;
-            transition: all 0.3s;
+            color: #333;
         }
-        .btn-primary {
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 12px;
             background-color: #3498db;
             color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
-        .btn-primary:hover {
+        .btn-login:hover {
             background-color: #2980b9;
-            transform: translateY(-2px);
         }
-        .btn-secondary {
-            background-color: #2ecc71;
-            color: white;
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #7f8c8d;
         }
-        .btn-secondary:hover {
-            background-color: #27ae60;
-            transform: translateY(-2px);
-        }
-        .auth-link {
+        .register-link a {
             color: #3498db;
             text-decoration: none;
             font-weight: 600;
         }
-        .auth-link:hover {
+        .register-link a:hover {
             text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="welcome-box">
-            <h1>Chào mừng đến với Mini Shop</h1>
-            <p class="subtitle">Trải nghiệm nạp tiền siêu tốc bằng QR Code và mua sắm tiện lợi</p>
-            
-            <div class="button-group">
-                <a href="shop.html" class="btn btn-primary">Mua hàng ngay</a>
-                <a href="deposit.html" class="btn btn-secondary">Nạp tiền ngay</a>
+    <div class="login-container">
+        <h1>Đăng nhập</h1>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
             </div>
             
-            <a href="login.html" class="auth-link" id="authLink">Đăng nhập / Đăng ký</a>
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="btn-login">Đăng nhập</button>
+        </form>
+        
+        <div class="register-link">
+            Chưa có tài khoản? <a href="register.html">Đăng ký</a>
         </div>
     </div>
 
     <script>
-        // Check login status
-        document.addEventListener('DOMContentLoaded', function() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            const authLink = document.getElementById('authLink');
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            if (isLoggedIn) {
-                const username = localStorage.getItem('username') || 'Tài khoản';
-                authLink.textContent = `Xin chào, ${username}`;
-                authLink.href = '#'; // Remove link when logged in
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple validation
+            if (username && password) {
+                // Save login status (in real app, this would be after server validation)
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('username', username);
+                
+                // Redirect to home page
+                window.location.href = 'index.html';
+            } else {
+                alert('Vui lòng nhập đầy đủ thông tin');
             }
         });
     </script>
