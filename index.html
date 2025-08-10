@@ -4,217 +4,153 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mini Shop - Nạp tiền QR tiện lợi</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <style>
-    :root {
-      --primary: #4361ee;
-      --secondary: #3f37c9;
-      --accent: #4895ef;
-      --light: #f8f9fa;
-      --dark: #212529;
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
     }
     
-    .hero {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      color: white;
-      padding: 4rem 2rem;
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .welcome-section {
       text-align: center;
-      border-radius: 10px;
-      margin-bottom: 2rem;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      margin-bottom: 3rem;
     }
     
-    .hero h1 {
+    .welcome-title {
       font-size: 2.5rem;
+      color: #2c3e50;
       margin-bottom: 1rem;
-      animation: fadeIn 1s ease;
     }
     
-    .hero p {
+    .welcome-subtitle {
       font-size: 1.2rem;
-      max-width: 700px;
-      margin: 0 auto 2rem;
+      color: #7f8c8d;
+      margin-bottom: 2rem;
     }
     
-    .cta-buttons {
+    .action-buttons {
       display: flex;
       gap: 1rem;
       justify-content: center;
-      flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+    
+    .btn {
+      padding: 0.8rem 2rem;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
     }
     
     .btn-primary {
-      background-color: white;
-      color: var(--primary);
-      padding: 0.8rem 2rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
+      background-color: #3498db;
+      color: white;
     }
     
     .btn-primary:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      background-color: #2980b9;
+      transform: translateY(-2px);
     }
     
     .btn-secondary {
-      background-color: transparent;
+      background-color: #2ecc71;
       color: white;
-      border: 2px solid white;
-      padding: 0.8rem 2rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
     }
     
     .btn-secondary:hover {
-      background-color: rgba(255,255,255,0.1);
+      background-color: #27ae60;
+      transform: translateY(-2px);
     }
     
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    .feature-section {
+      display: flex;
+      flex-direction: column;
       gap: 2rem;
-      margin: 3rem 0;
+      margin-top: 3rem;
     }
     
     .feature-card {
       background: white;
-      border-radius: 10px;
       padding: 2rem;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      text-align: center;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
     
-    .feature-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-    
-    .feature-icon {
-      font-size: 2.5rem;
-      color: var(--accent);
-      margin-bottom: 1rem;
-    }
-    
-    .feature-card h3 {
-      color: var(--dark);
-      margin-bottom: 1rem;
-    }
-    
-    .feature-card p {
-      color: #6c757d;
-      margin-bottom: 1.5rem;
+    .feature-title {
+      color: #2c3e50;
+      margin-top: 0;
     }
     
     .feature-link {
-      color: var(--primary);
-      font-weight: 600;
+      color: #3498db;
       text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
+      font-weight: 600;
+      display: inline-block;
+      margin-top: 1rem;
     }
     
     .feature-link:hover {
       text-decoration: underline;
     }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    @media (max-width: 768px) {
-      .hero {
-        padding: 2rem 1rem;
-      }
-      
-      .hero h1 {
-        font-size: 2rem;
-      }
-      
-      .cta-buttons {
-        flex-direction: column;
-        align-items: center;
-      }
-    }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">Mini Shop <span class="highlight">QR</span></div>
-    <nav class="nav">
-      <a href="shop.html"><i class="fas fa-store"></i> Shop</a>
-      <a href="deposit.html"><i class="fas fa-qrcode"></i> Nạp tiền</a>
-      <span id="header-user" class="header-user"></span>
-      <button id="btn-logout" class="btn small" onclick="logout()" style="display:none"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
-    </nav>
-  </header>
-
   <main class="container">
-    <section class="hero">
-      <h1>Chào mừng đến với Mini Shop</h1>
-      <p>Trải nghiệm nạp tiền siêu tốc bằng QR Code và mua sắm tiện lợi</p>
+    <section class="welcome-section">
+      <h1 class="welcome-title">Chào mừng đến với Mini Shop</h1>
+      <p class="welcome-subtitle">Trải nghiệm nạp tiền siêu tốc bằng QR Code và mua sắm tiện lợi</p>
       
-      <div class="cta-buttons">
-        <a href="shop.html" class="btn btn-primary"><i class="fas fa-shopping-cart"></i> Mua hàng ngay</a>
-        <a href="deposit.html" class="btn btn-secondary"><i class="fas fa-wallet"></i> Nạp tiền ngay</a>
+      <div class="action-buttons">
+        <a href="shop.html" class="btn btn-primary">Mua hàng ngay</a>
+        <a href="deposit.html" class="btn btn-secondary">Nạp tiền ngay</a>
       </div>
     </section>
     
-    <section class="features">
+    <section class="feature-section">
       <div class="feature-card">
-        <div class="feature-icon"><i class="fas fa-shopping-bag"></i></div>
-        <h3>Mua sắm tiện lợi</h3>
+        <h2 class="feature-title">Mua sắm tiện lợi</h2>
         <p>Khám phá hàng ngàn sản phẩm đa dạng với giá cả cạnh tranh nhất thị trường</p>
-        <a href="shop.html" class="feature-link">Xem sản phẩm <i class="fas fa-arrow-right"></i></a>
+        <a href="shop.html" class="feature-link">Xem sản phẩm →</a>
       </div>
       
       <div class="feature-card">
-        <div class="feature-icon"><i class="fas fa-bolt"></i></div>
-        <h3>Nạp tiền siêu tốc</h3>
+        <h2 class="feature-title">Nạp tiền siêu tốc</h2>
         <p>Nạp tiền vào tài khoản chỉ trong 30 giây với công nghệ QR Code hiện đại</p>
-        <a href="deposit.html" class="feature-link">Nạp tiền ngay <i class="fas fa-arrow-right"></i></a>
+        <a href="deposit.html" class="feature-link">Nạp tiền ngay →</a>
       </div>
       
       <div class="feature-card">
-        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-        <h3>Quản lý thông minh</h3>
+        <h2 class="feature-title">Quản lý thông minh</h2>
         <p>Theo dõi lịch sử giao dịch và quản lý tài khoản mọi lúc mọi nơi</p>
-        <a href="login.html" class="feature-link">Đăng nhập <i class="fas fa-arrow-right"></i></a>
+        <a href="login.html" class="feature-link">Đăng nhập →</a>
       </div>
     </section>
   </main>
 
-  <script src="script.js"></script>
   <script>
-    // Kiểm tra trạng thái đăng nhập
+    // Kiểm tra đăng nhập để điều hướng phù hợp
     document.addEventListener('DOMContentLoaded', function() {
-      const username = localStorage.getItem('username');
-      const headerUser = document.getElementById('header-user');
-      const btnLogout = document.getElementById('btn-logout');
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
       
-      if (username) {
-        headerUser.innerHTML = `
-          <span class="user-greeting">
-            <i class="fas fa-user-circle"></i> Xin chào, ${username}
-          </span>
-        `;
-        btnLogout.style.display = 'inline-block';
-      } else {
-        headerUser.innerHTML = `
-          <a href="login.html" class="login-btn">
-            <i class="fas fa-sign-in-alt"></i> Đăng nhập/Đăng ký
-          </a>
-        `;
+      // Nếu đã đăng nhập, thay đổi text nút đăng nhập
+      if (isLoggedIn) {
+        const loginLink = document.querySelector('a[href="login.html"]');
+        if (loginLink) {
+          loginLink.textContent = 'Tài khoản →';
+        }
       }
     });
-    
-    function logout() {
-      localStorage.removeItem('username');
-      window.location.href = 'index.html';
-    }
   </script>
 </body>
 </html>
